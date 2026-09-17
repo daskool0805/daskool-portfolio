@@ -5,7 +5,11 @@
   "cleanUrls": false,
   "rewrites": [
     {
-      "source": "/admin/:path*",
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/((?!static/).*)",
       "destination": "/admin/index.html"
     },
     {
