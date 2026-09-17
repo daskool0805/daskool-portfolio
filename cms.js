@@ -1,6 +1,6 @@
 (function(){
   const config=window.DASKOOL_CMS_CONFIG||{};
-  const state={settings:null,projects:[],connected:false};
+  const state={settings:null,projects:[],connected:false,usingLegacy:false};
   const categoryKeys=["branding","social","motion","photo"];
   const clean=value=>(value||"").trim();
   const imageUrl=value=>value&&typeof value==="object"?(value.asset&&value.asset.url)||value.url||"":value||"";
@@ -127,13 +127,13 @@
     activate(projectFromUrl(projects));
   }
 
-  function applyAll(){applyLanding();applyAbout();applyWorkIndex();renderBranding();renderGallery();document.dispatchEvent(new CustomEvent("daskool:cms-ready",{detail:state}))}
+  function applyAll(){applyLanding();applyAbout();if(!state.usingLegacy)applyWorkIndex();renderBranding();renderGallery();document.dispatchEvent(new CustomEvent("daskool:cms-ready",{detail:state}))}
   async function load(){
     if(!config.projectId){applyAll();return state}
     const query=`{\"settings\":*[_type==\"siteSettings\"][0]{landingMotionImages[]{alt,orientation,asset->{url}},landingCategoryImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}},aboutHoverImages[]{orientation,image{alt,asset->{url}}},workCategoryMotionImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}}},\"projects\":*[_type==\"showcaseProject\" && defined(slug.current) && defined(template)]|order(order asc){_id,title,\"slug\":slug.current,categories,template,description,brandingItems[]{label,image{alt,asset->{url}}},galleryItems[]{caption,image{alt,asset->{url}}}},\"legacy\":*[_type==\"project\" && status==\"published\"]|order(projectOrder asc){_id,title,\"slug\":slug.current,category,shortDescription,thumbnail{alt,asset->{url}},coverImage{alt,asset->{url}}}}`;
     const host=config.useCdn!==false?"apicdn":"api";
     const url=`https://${config.projectId}.${host}.sanity.io/v${config.apiVersion||"2026-09-01"}/data/query/${config.dataset||"production"}?query=${encodeURIComponent(query)}`;
-    try{const response=await fetch(url);if(!response.ok)throw new Error(`CMS ${response.status}`);const payload=await response.json();state.settings=payload.result&&payload.result.settings;const result=payload.result||{};const legacy=(result.legacy||[]).flatMap(project=>{const categories=(project.category||[]).filter(category=>categoryKeys.includes(category));const image=project.coverImage?.asset?.url?project.coverImage:project.thumbnail;return categories.map(category=>({title:project.title,slug:`${project.slug}-${category}`,categories:[category],template:category==='branding'?'branding':'gallery',description:project.shortDescription||'',brandingItems:image?[{image,label:project.title}]:[],galleryItems:image?[{image,caption:project.title}]:[]}))});state.projects=result.projects?.length?result.projects:legacy;state.connected=true;applyAll()}catch(error){console.warn("Daskool CMS fallback active:",error);applyAll()}
+    try{const response=await fetch(url);if(!response.ok)throw new Error(`CMS ${response.status}`);const payload=await response.json();state.settings=payload.result&&payload.result.settings;const result=payload.result||{};const legacy=(result.legacy||[]).flatMap(project=>{const categories=(project.category||[]).filter(category=>categoryKeys.includes(category));const image=project.coverImage?.asset?.url?project.coverImage:project.thumbnail;return categories.map(category=>({title:project.title,slug:`${project.slug}-${category}`,categories:[category],template:category==='branding'?'branding':'gallery',description:project.shortDescription||'',brandingItems:image?[{image,label:project.title}]:[],galleryItems:image?[{image,caption:project.title}]:[]}))});state.usingLegacy=!result.projects?.length;state.projects=state.usingLegacy?legacy:result.projects;state.connected=true;applyAll()}catch(error){console.warn("Daskool CMS fallback active:",error);applyAll()}
     return state;
   }
   window.DASKOOL_CMS={state,load,applyAll,applyAbout,applyWorkCategory,uniqueProjects};
