@@ -25,13 +25,13 @@ if(landingHeroBio){
 const contactDetails=document.querySelector('.landing-body .contact-details');function updateLandingScroll(){if(!contactDetails)return;const max=document.documentElement.scrollHeight-innerHeight;const photography=document.querySelector('.landing-categories a:last-child');const start=photography?photography.offsetTop+photography.offsetHeight-innerHeight*.82:max*.72;const range=Math.max(1,max-start);const p=Math.max(0,Math.min(1,(scrollY-start)/range));contactDetails.style.transform=`translate3d(${(1-p)*62}vw,0,0)`}addEventListener('scroll',updateLandingScroll,{passive:true});addEventListener('resize',updateLandingScroll);updateLandingScroll();
 const morphText=document.querySelector('.hero-bio p');
 if(morphText){const original=morphText.textContent.trim();morphText.classList.add('morph-text');morphText.setAttribute('aria-label',original);morphText.setAttribute('tabindex','0');const image=new Image();image.src='/assets/horse-letter-mask.png';Promise.all([document.fonts.ready,new Promise(resolve=>{image.onload=resolve;image.onerror=resolve})]).then(()=>{const layout=()=>{if(morphText.dataset.asciiHorse)return;const width=morphText.clientWidth||470,height=morphText.clientHeight||300,style=getComputedStyle(morphText),measure=document.createElement('canvas').getContext('2d');measure.font=`${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;const line=parseFloat(style.lineHeight)||22,xStart=0;let x=xStart,y=3;const chars=[];original.match(/\S+|\s+/g).forEach(token=>{if(/^\s+$/.test(token)){x+=measure.measureText(' ').width;return}const wordWidth=measure.measureText(token).width;if(x&&x+wordWidth>width){x=xStart;y+=line}for(const char of token){chars.push({char,x,y});x+=measure.measureText(char).width}});const targetCount=Math.max(chars.length+130,360),points=[];if(image.naturalWidth){const c=document.createElement('canvas'),ctx=c.getContext('2d');c.width=image.naturalWidth;c.height=image.naturalHeight;ctx.drawImage(image,0,0);const data=ctx.getImageData(0,0,c.width,c.height).data;for(let yy=0;yy<c.height;yy+=3)for(let xx=0;xx<c.width;xx+=3){const i=(yy*c.width+xx)*4;if(data[i]+data[i+1]+data[i+2]<650)points.push({x:xx,y:yy})}}let minX=Infinity,minY=Infinity,maxX=0,maxY=0;points.forEach(pt=>{minX=Math.min(minX,pt.x);minY=Math.min(minY,pt.y);maxX=Math.max(maxX,pt.x);maxY=Math.max(maxY,pt.y)});const cloud=[];for(let i=0;i<targetCount;i++){const pt=points.length?points[Math.floor(i*points.length/targetCount)]:{x:(i%30)*10,y:Math.floor(i/30)*10};cloud.push({x:((pt.x-minX)/(maxX-minX||1))*width*.96+width*.02,y:((pt.y-minY)/(maxY-minY||1))*height*.96+height*.01})}morphText.replaceChildren();const alphabet='DASKOOLGRAPHICDESIGN0123456789';for(let i=0;i<targetCount;i++){const span=document.createElement('span'),target=chars[i],horse=cloud[i];const nx=horse.x/width,ny=horse.y/height;const region=ny>.54?(nx>.56?'front-leg':nx<.5?'rear-leg':'mid-leg'):nx>.78?'horse-head':nx>.62?'horse-neck':nx>.48?'horse-shoulder':nx<.18?'horse-tail':nx<.34?'horse-rump':'horse-torso';span.className=`morph-letter ${region}`;span.textContent=target?target.char:alphabet[(i*7)%alphabet.length];span.setAttribute('aria-hidden','true');span.style.setProperty('--hx',`${horse.x}px`);span.style.setProperty('--hy',`${horse.y}px`);span.style.setProperty('--tx',`${target?target.x:width*.5}px`);span.style.setProperty('--ty',`${target?target.y+55:height*.5}px`);span.style.setProperty('--read-opacity',target?'1':'0');span.style.setProperty('--delay',`${(i%23)*7}ms`);morphText.append(span)}if(!morphText.classList.contains('horse-enter'))requestAnimationFrame(()=>morphText.classList.add('horse-enter'))};layout();let timer;addEventListener('resize',()=>{clearTimeout(timer);timer=setTimeout(layout,180)});morphText.addEventListener('mouseenter',()=>morphText.classList.add('is-reading'));morphText.addEventListener('mouseleave',()=>morphText.classList.remove('is-reading'));morphText.addEventListener('focus',()=>morphText.classList.add('is-reading'));morphText.addEventListener('blur',()=>morphText.classList.remove('is-reading'))})}
-const cats=[...document.querySelectorAll('.category')];let projects=[...document.querySelectorAll('.project-name')];const categoryArtStack=document.querySelector('.category-art-stack');
-document.addEventListener('daskool:projects-loaded',()=>{projects=[...document.querySelectorAll('.project-name')]});
+const cats=[...document.querySelectorAll('.category')],categoryArtStack=document.querySelector('.category-art-stack');
 if(cats.length){
   const shuffle=list=>list.map(value=>({value,sort:Math.random()})).sort((a,b)=>a.sort-b.sort).map(item=>item.value);
   const set=c=>{
-    projects.forEach(p=>p.classList.toggle('highlight',(p.dataset.categories||'').split(/\s+/).includes(c.dataset.category)));
+    document.querySelectorAll('.project-name').forEach(p=>p.classList.toggle('highlight',(p.dataset.categories||'').split(/\s+/).includes(c.dataset.category)));
     if(categoryArtStack){
+      window.DASKOOL_CMS?.applyWorkCategory(c.dataset.category,categoryArtStack.children);
       shuffle([...categoryArtStack.children]).forEach((frame,index)=>{frame.querySelector('span').textContent=String(index+1).padStart(2,'0');categoryArtStack.append(frame)});
       categoryArtStack.dataset.category=c.dataset.category;
       categoryArtStack.classList.remove('is-active');
@@ -40,7 +40,7 @@ if(cats.length){
     }
   };
   cats.forEach(c=>{c.addEventListener('mouseenter',()=>set(c));c.addEventListener('focus',()=>set(c))});
-  document.querySelector('.category-dock')?.addEventListener('mouseleave',()=>{projects.forEach(p=>p.classList.remove('highlight'));categoryArtStack?.classList.remove('is-active')});
+  document.querySelector('.category-dock')?.addEventListener('mouseleave',()=>{document.querySelectorAll('.project-name').forEach(p=>p.classList.remove('highlight'));categoryArtStack?.classList.remove('is-active')});
 }
 
 if(cats.length){
@@ -313,6 +313,37 @@ if(cornerHorses.length){
   const draw=()=>{cornerHorses.forEach(horse=>horse.textContent=frames[frame]);frame=(frame+1)%frames.length};
   draw();
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(draw,135);
+}
+
+/* About: 50 evenly distributed, non-overlapping hover image placeholders. */
+const aboutHoverField=document.querySelector('.about-hover-field');
+if(aboutHoverField){
+  const fragment=document.createDocumentFragment();
+  for(let index=0;index<50;index++){
+    const cell=document.createElement('span');
+    const frame=document.createElement('i');
+    const portrait=index%3!==0;
+    cell.className='about-hover-cell';
+    cell.tabIndex=-1;
+    frame.className=`about-hover-frame ${portrait?'is-portrait':'is-landscape'} tone-${index%5+1}`;
+    frame.innerHTML=`<b>${String(index+1).padStart(2,'0')}</b>`;
+    cell.append(frame);
+    fragment.append(cell);
+  }
+  aboutHoverField.append(fragment);
+  window.DASKOOL_CMS?.applyAbout();
+
+  /* Touch screens have no hover: a tap briefly reveals the selected frame. */
+  if(matchMedia('(hover: none)').matches){
+    aboutHoverField.addEventListener('pointerdown',event=>{
+      const cell=event.target.closest('.about-hover-cell');
+      if(!cell)return;
+      aboutHoverField.querySelectorAll('.is-touch-active').forEach(item=>item.classList.remove('is-touch-active'));
+      cell.classList.add('is-touch-active');
+      clearTimeout(cell._hideTimer);
+      cell._hideTimer=setTimeout(()=>cell.classList.remove('is-touch-active'),900);
+    });
+  }
 }
 
 const brandingTabs=[...document.querySelectorAll('.branding-showcase .showcase-project')];
