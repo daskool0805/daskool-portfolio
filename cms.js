@@ -181,6 +181,7 @@
     const root=document.querySelector(".gallery-showcase");
     if(!root)return;
     const key=categoryKeys.includes(new URLSearchParams(location.search).get("category"))?new URLSearchParams(location.search).get("category"):"social";
+    root.classList.toggle("is-photography",key==="photo");
     const projects=categoryProjects(key).filter(project=>project.template==="gallery");
     if(!projects.length)return;
     const labels={social:"creative social design",motion:"video & motion",photo:"photography"};
@@ -192,6 +193,7 @@
       const version=++previewVersion;
       [...grid.children].forEach(node=>node.classList.toggle("is-active",node===button));
       const media=mediaNode(item,true);preview.replaceChildren(...(media?[media]:[]));
+      if(key==="photo")return;
       const palette=item.image?.asset?.metadata?.palette?.dominant?.background;
       preview.style.setProperty("--preview-tone",softenColor(palette)||"#e6e9df");
       if(!palette&&media?.tagName==="IMG"){
