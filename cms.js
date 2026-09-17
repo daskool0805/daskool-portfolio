@@ -59,6 +59,30 @@
     const img=document.createElement("img");img.src=url;img.alt=imageAlt(item.image||item);img.decoding="async";
     return img;
   };
+  const softenColor=value=>{
+    const match=/^#([\da-f]{6})$/i.exec(value||"");
+    if(!match)return "";
+    const rgb=[0,2,4].map(offset=>parseInt(match[1].slice(offset,offset+2),16));
+    const chroma=(Math.max(...rgb)-Math.min(...rgb))/255;
+    const paper=[251,250,239],paperWeight=.72+chroma*.12;
+    return `rgb(${rgb.map((channel,index)=>Math.round(channel*(1-paperWeight)+paper[index]*paperWeight)).join(",")})`;
+  };
+  const sampledColor=img=>{
+    try{
+      const canvas=document.createElement("canvas");canvas.width=24;canvas.height=24;
+      const context=canvas.getContext("2d",{willReadFrequently:true});context.drawImage(img,0,0,24,24);
+      const data=context.getImageData(0,0,24,24).data,buckets=new Map();
+      for(let index=0;index<data.length;index+=4){
+        if(data[index+3]<128)continue;
+        const key=`${data[index]>>5}-${data[index+1]>>5}-${data[index+2]>>5}`;
+        const bucket=buckets.get(key)||{count:0,r:0,g:0,b:0};
+        bucket.count++;bucket.r+=data[index];bucket.g+=data[index+1];bucket.b+=data[index+2];buckets.set(key,bucket);
+      }
+      const dominant=[...buckets.values()].sort((a,b)=>b.count-a.count)[0];
+      if(!dominant)return "";
+      return softenColor(`#${[dominant.r,dominant.g,dominant.b].map(total=>Math.round(total/dominant.count).toString(16).padStart(2,"0")).join("")}`);
+    }catch{return ""}
+  };
   const uniqueProjects=projects=>{
     const map=new Map();
     projects.forEach(project=>{
@@ -162,10 +186,24 @@
     const labels={social:"creative social design",motion:"video & motion",photo:"photography"};
     const title=root.querySelector("[data-gallery-category]"),tabs=root.querySelector("[data-gallery-projects]"),copy=root.querySelector("[data-gallery-copy]"),grid=root.querySelector("[data-art-grid]"),preview=root.querySelector("[data-gallery-preview]");
     title.textContent=labels[key]||key;
-    const clearPreview=()=>{[...grid.children].forEach(node=>node.classList.remove("is-active"));preview.replaceChildren()};
+    let previewVersion=0;
+    const clearPreview=()=>{previewVersion++;[...grid.children].forEach(node=>node.classList.remove("is-active"));preview.replaceChildren();preview.style.removeProperty("--preview-tone")};
     const selectArtwork=(button,item)=>{
+      const version=++previewVersion;
       [...grid.children].forEach(node=>node.classList.toggle("is-active",node===button));
       const media=mediaNode(item,true);preview.replaceChildren(...(media?[media]:[]));
+      const palette=item.image?.asset?.metadata?.palette?.dominant?.background;
+      preview.style.setProperty("--preview-tone",softenColor(palette)||"#e6e9df");
+      if(!palette&&media?.tagName==="IMG"){
+        const probe=new Image();probe.crossOrigin="anonymous";
+        const updateTone=()=>{
+          if(version!==previewVersion||preview.firstElementChild!==media)return;
+          const tone=sampledColor(probe);
+          if(tone)preview.style.setProperty("--preview-tone",tone);
+        };
+        probe.addEventListener("load",updateTone,{once:true});
+        probe.src=media.src;
+      }
     };
     const activate=project=>{
       [...tabs.children].forEach(button=>{const active=button.dataset.slug===project.slug;button.classList.toggle("is-active",active);button.setAttribute("aria-selected",String(active))});
@@ -182,7 +220,7 @@
   function applyAll(){applyLanding();applyAbout();if(!state.usingLegacy)applyWorkIndex();renderBranding();renderGallery();document.dispatchEvent(new CustomEvent("daskool:cms-ready",{detail:state}))}
   async function load(){
     if(!config.projectId){applyAll();return state}
-    const query=`{\"settings\":*[_type==\"siteSettings\"][0]{landingMotionImages[]{alt,orientation,asset->{url}},landingCategoryImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}},aboutHoverImages[]{orientation,image{alt,asset->{url}}},workCategoryMotionImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}}},\"projects\":*[_type==\"showcaseProject\" && defined(slug.current) && defined(template)]|order(order asc){_id,title,\"slug\":slug.current,categories,template,description,brandingItems[]{label,layout,vimeoUrl,videoAspectRatio,image{alt,asset->{url}}},galleryItems[]{caption,vimeoUrl,videoAspectRatio,image{alt,asset->{url}}}},\"legacy\":*[_type==\"project\" && status==\"published\"]|order(projectOrder asc){_id,title,\"slug\":slug.current,category,shortDescription,thumbnail{alt,asset->{url}},coverImage{alt,asset->{url}}}}`;
+    const query=`{\"settings\":*[_type==\"siteSettings\"][0]{landingMotionImages[]{alt,orientation,asset->{url}},landingCategoryImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}},aboutHoverImages[]{orientation,image{alt,asset->{url}}},workCategoryMotionImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}}},\"projects\":*[_type==\"showcaseProject\" && defined(slug.current) && defined(template)]|order(order asc){_id,title,\"slug\":slug.current,categories,template,description,brandingItems[]{label,layout,vimeoUrl,videoAspectRatio,image{alt,asset->{url}}},galleryItems[]{caption,vimeoUrl,videoAspectRatio,image{alt,asset->{url,metadata{palette{dominant{background}}}}}}},\"legacy\":*[_type==\"project\" && status==\"published\"]|order(projectOrder asc){_id,title,\"slug\":slug.current,category,shortDescription,thumbnail{alt,asset->{url,metadata{palette{dominant{background}}}}},coverImage{alt,asset->{url,metadata{palette{dominant{background}}}}}}}`;
     const host=config.useCdn!==false?"apicdn":"api";
     const url=`https://${config.projectId}.${host}.sanity.io/v${config.apiVersion||"2026-09-01"}/data/query/${config.dataset||"production"}?query=${encodeURIComponent(query)}`;
     try{const response=await fetch(url);if(!response.ok)throw new Error(`CMS ${response.status}`);const payload=await response.json();state.settings=payload.result&&payload.result.settings;const result=payload.result||{};const legacy=(result.legacy||[]).flatMap(project=>{const categories=(project.category||[]).filter(category=>categoryKeys.includes(category));const image=project.coverImage?.asset?.url?project.coverImage:project.thumbnail;return categories.map(category=>({title:project.title,slug:`${project.slug}-${category}`,categories:[category],template:category==='branding'?'branding':'gallery',description:project.shortDescription||'',brandingItems:image?[{image,label:project.title}]:[],galleryItems:image?[{image,caption:project.title}]:[]}))});state.usingLegacy=!result.projects?.length;state.projects=state.usingLegacy?legacy:result.projects;state.connected=true;applyAll()}catch(error){console.warn("Daskool CMS fallback active:",error);applyAll()}
