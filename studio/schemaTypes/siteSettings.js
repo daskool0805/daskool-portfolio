@@ -6,8 +6,8 @@ const imageField=(name,title,count)=>defineField({
   of:[defineArrayMember({type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]})]
 })
 
-const categoryImageGroup=(name,title,count)=>defineField({
-  name,title,type:'object',fields:[
+const categoryImageGroup=(name,title,count,description)=>defineField({
+  name,title,type:'object',description,fields:[
     imageField('branding','Branding Design',count),
     imageField('social','Creative Social Design',count),
     imageField('motion','Video & Motion',count),
@@ -29,7 +29,7 @@ export const siteSettings=defineType({
         defineField({name:'image',title:'Hình ảnh',type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]})
       ],preview:{select:{media:'image',orientation:'orientation'},prepare:({media,orientation})=>({title:orientation==='landscape'?'Hình ngang':'Hình dọc',media})}})]
     }),
-    categoryImageGroup('workCategoryMotionImages','Work — 4 hình motion cho mỗi danh mục',4)
+    categoryImageGroup('workCategoryMotionImages','Work — 4 hình motion cho mỗi danh mục',4,'Upload 4 hình riêng cho từng danh mục: Branding, Social, Motion và Photography (tổng cộng 16 hình).')
   ],
   preview:{prepare:()=>({title:'Site Images — Landing, About & Work'})}
 })

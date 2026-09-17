@@ -87,13 +87,17 @@
       name.textContent=entry.title+(index<entries.length-1?",":"");
       list.append(name);
     });
-    const dots=document.createElement("span");dots.className="dots";dots.textContent="…";list.append(dots);
+    window.dispatchEvent(new Event("workprojectschange"));
   }
 
   function applyWorkCategory(category,frames){
     const groups=(state.settings&&state.settings.workCategoryMotionImages)||{};
     const images=groups[category]||[];
-    [...frames].forEach((frame,index)=>setImage(frame,images[index]));
+    [...frames].forEach(frame=>{
+      frame.style.removeProperty("background-image");
+      frame.classList.remove("has-cms-image");
+      setImage(frame,images[Number(frame.dataset.slot)]);
+    });
   }
 
   function renderBranding(){

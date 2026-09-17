@@ -41,6 +41,32 @@ if(cats.length){
   };
   cats.forEach(c=>{c.addEventListener('mouseenter',()=>set(c));c.addEventListener('focus',()=>set(c))});
   document.querySelector('.category-dock')?.addEventListener('mouseleave',()=>{document.querySelectorAll('.project-name').forEach(p=>p.classList.remove('highlight'));categoryArtStack?.classList.remove('is-active')});
+  document.addEventListener('daskool:cms-ready',()=>{
+    if(categoryArtStack?.dataset.category)window.DASKOOL_CMS?.applyWorkCategory(categoryArtStack.dataset.category,categoryArtStack.children);
+  });
+}
+
+const workProjectList=document.querySelector('.work-page .project-list');
+if(workProjectList){
+  const layoutProjects=()=>{
+    if(matchMedia('(max-width: 760px)').matches){workProjectList.style.removeProperty('--project-rows');return}
+    const names=workProjectList.querySelectorAll('.project-name');
+    if(!names.length)return;
+    const page=document.querySelector('.work-page');
+    const stack=page.querySelector('.category-art-stack');
+    const pageStyle=getComputedStyle(page);
+    const available=innerHeight-parseFloat(pageStyle.paddingTop)-parseFloat(pageStyle.paddingBottom)-stack.offsetHeight-34;
+    let rows=Math.max(2,Math.min(names.length,Math.floor(available/(names[0].getBoundingClientRect().height||1))));
+    workProjectList.style.setProperty('--project-rows',rows);
+    const maxWidth=innerWidth-2*parseFloat(pageStyle.paddingLeft);
+    while(rows<names.length&&workProjectList.scrollWidth>maxWidth){
+      workProjectList.style.setProperty('--project-rows',++rows);
+    }
+  };
+  layoutProjects();
+  document.fonts?.ready.then(layoutProjects);
+  addEventListener('resize',layoutProjects);
+  addEventListener('workprojectschange',layoutProjects);
 }
 
 if(cats.length){
@@ -362,13 +388,16 @@ if(aboutHoverField){
 const aboutBadge=document.querySelector('.about-evolving-badge');
 if(aboutBadge){
   const timeline=document.querySelector('.about .timeline');
+  const initialX=Math.random(),initialY=Math.random();
   let moved=false;
   let drag=null;
   const clamp=(value,min,max)=>Math.max(min,Math.min(value,max));
   const placeDefault=()=>{
     if(moved||!timeline)return;
-    aboutBadge.style.left=`${clamp(innerWidth*.56,8,innerWidth-aboutBadge.offsetWidth-8)}px`;
-    aboutBadge.style.top=`${timeline.getBoundingClientRect().bottom+scrollY+28}px`;
+    const minTop=timeline.getBoundingClientRect().bottom+scrollY+18;
+    const maxTop=Math.max(minTop,document.documentElement.scrollHeight-aboutBadge.offsetHeight-16);
+    aboutBadge.style.left=`${12+initialX*Math.max(0,innerWidth-aboutBadge.offsetWidth-24)}px`;
+    aboutBadge.style.top=`${minTop+initialY*(maxTop-minTop)}px`;
   };
   placeDefault();
   document.fonts?.ready.then(placeDefault);
