@@ -22,7 +22,7 @@ export const siteSettings=defineType({
     categoryImageGroup('landingCategoryImages','Landing — 3 hình cho mỗi danh mục',3),
     defineField({
       name:'aboutHoverImages',title:'About — 50 hình hover',type:'array',
-      description:'Nhập hình theo thứ tự 1–50. Website sẽ rải ngẫu nhiên các hình trên 50 vị trí mỗi lần tải trang.',
+      description:'Nhập hình theo thứ tự 1–50. Website xáo trộn và cố định mỗi hình vào một trong 50 vị trí trên desktop; tải lại trang không đổi vị trí.',
       validation:Rule=>Rule.max(50).error('Tối đa 50 hình'),
       of:[defineArrayMember({type:'object',fields:[
         defineField({name:'orientation',title:'Kiểu khung',type:'string',initialValue:'portrait',options:{layout:'radio',list:[{title:'Dọc',value:'portrait'},{title:'Ngang',value:'landscape'}]}}),
