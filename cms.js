@@ -66,12 +66,12 @@
 
   function applyAbout(){
     const images=(state.settings&&state.settings.aboutHoverImages)||[];
-    document.querySelectorAll(".about-hover-frame").forEach((frame,index)=>{
-      const item=images[index];
+    document.querySelectorAll(".about-hover-frame").forEach(frame=>{
+      const item=images[Number(frame.parentElement.dataset.imageIndex)];
       if(!item)return;
       frame.classList.toggle("is-landscape",item.orientation==="landscape");
       frame.classList.toggle("is-portrait",item.orientation!=="landscape");
-      setImage(frame,item.image||item);
+      setAdaptiveImage(frame,item.image||item,item.orientation==="landscape"?4/3:3/4);
     });
   }
 

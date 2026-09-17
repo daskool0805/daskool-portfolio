@@ -315,18 +315,23 @@ if(cornerHorses.length){
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(draw,135);
 }
 
-/* About: 50 evenly distributed, non-overlapping hover image placeholders. */
+/* About: one hover target per grid slot, with the CMS images shuffled across slots. */
 const aboutHoverField=document.querySelector('.about-hover-field');
 if(aboutHoverField){
   const fragment=document.createDocumentFragment();
+  const imageOrder=Array.from({length:50},(_,index)=>index);
+  for(let index=imageOrder.length-1;index>0;index--){
+    const swap=Math.floor(Math.random()*(index+1));
+    [imageOrder[index],imageOrder[swap]]=[imageOrder[swap],imageOrder[index]];
+  }
   for(let index=0;index<50;index++){
     const cell=document.createElement('span');
     const frame=document.createElement('i');
     const portrait=index%3!==0;
     cell.className='about-hover-cell';
+    cell.dataset.imageIndex=imageOrder[index];
     cell.tabIndex=-1;
     frame.className=`about-hover-frame ${portrait?'is-portrait':'is-landscape'} tone-${index%5+1}`;
-    frame.innerHTML=`<b>${String(index+1).padStart(2,'0')}</b>`;
     cell.append(frame);
     fragment.append(cell);
   }
@@ -344,6 +349,37 @@ if(aboutHoverField){
       cell._hideTimer=setTimeout(()=>cell.classList.remove('is-touch-active'),900);
     });
   }
+}
+
+const aboutTagline=document.querySelector('.about-nav-tagline');
+if(aboutTagline){
+  let letterIndex=0;
+  aboutTagline.querySelectorAll('[data-scatter-text]').forEach(part=>{
+    const fragment=document.createDocumentFragment();
+    for(const char of part.textContent){
+      const letter=document.createElement('span');
+      const seed=letterIndex++;
+      letter.className='scatter-letter';
+      letter.textContent=char===' '?'\u00a0':char;
+      letter.style.setProperty('--scatter-x',`${((seed*37)%101)-50}px`);
+      letter.style.setProperty('--scatter-y',`${20+(seed*23)%51}px`);
+      letter.style.setProperty('--scatter-r',`${((seed*19)%51)-25}deg`);
+      letter.style.setProperty('--scatter-delay',`${(seed%7)*16}ms`);
+      fragment.append(letter);
+    }
+    part.replaceChildren(fragment);
+  });
+  const links=aboutTagline.previousElementSibling;
+  if(matchMedia('(hover: hover) and (pointer: fine)').matches){
+    document.addEventListener('pointermove',event=>{
+      const text=aboutTagline.getBoundingClientRect(),nav=links.getBoundingClientRect();
+      const near=event.clientX>=Math.min(text.left,nav.left)-80&&event.clientX<=Math.max(text.right,nav.right)+50&&event.clientY>=nav.top-45&&event.clientY<=text.bottom+65;
+      aboutTagline.classList.toggle('is-scattered',near);
+    },{passive:true});
+    document.addEventListener('pointerleave',()=>aboutTagline.classList.remove('is-scattered'));
+  }
+  links.addEventListener('focusin',()=>aboutTagline.classList.add('is-scattered'));
+  links.addEventListener('focusout',()=>aboutTagline.classList.remove('is-scattered'));
 }
 
 const brandingTabs=[...document.querySelectorAll('.branding-showcase .showcase-project')];
