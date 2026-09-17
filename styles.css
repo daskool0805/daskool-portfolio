@@ -171,6 +171,8 @@
 .project-block img{display:block;width:100%;height:auto;object-fit:contain;filter:grayscale(.1)}
 .project-full-image img{width:100%;height:auto}
 .project-two-images{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.project-three-images{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+.project-portrait-image figure{max-width:68%;margin-inline:auto}.project-square-image figure{max-width:min(100%,1100px);margin-inline:auto}
 .project-video video,.project-video-placeholder{display:block;width:100%;height:auto;aspect-ratio:var(--video-ratio,16 / 9);object-fit:contain;background:#d7d7d1;border:1px solid var(--green)}
 .project-video-placeholder{position:relative;background:linear-gradient(135deg,#d4d8d1,#e2ded2)}
 .project-video-placeholder span{position:absolute;left:18px;bottom:16px;color:#171717;font-size:12px;letter-spacing:.08em}
@@ -185,7 +187,7 @@
 .project-spacer--small{height:clamp(28px,4vw,58px)}
 .project-spacer--medium{height:clamp(58px,8vw,118px)}
 .project-spacer--large{height:clamp(96px,13vw,190px)}
-@media(max-width:760px){.project-two-images,.project-image-text{grid-template-columns:1fr}.project-image-text.is-text-left .project-image-text-media{order:0}.project-text p,.project-image-text p{font-size:17px}.project-block{margin-top:14px}}
+@media(max-width:760px){.project-two-images,.project-three-images,.project-image-text{grid-template-columns:1fr}.project-portrait-image figure{max-width:100%}.project-image-text.is-text-left .project-image-text-media{order:0}.project-text p,.project-image-text p{font-size:17px}.project-block{margin-top:14px}}
 
 /* Decorative ASCII sunflower and work eye */
 .about{position:relative;z-index:2}
@@ -230,3 +232,5 @@
 .gallery-preview{min-height:72vh;background:#d2d2cc}
 .gallery-preview span{left:22px;bottom:20px;font-size:15px}
 @media(max-width:820px){.showcase-nav{top:24px;left:22px}.showcase-shell{padding:88px 22px 36px;display:block}.showcase-sidebar{min-height:auto}.project-description{max-width:48ch}.brand-canvas,.gallery-stage{margin-top:34px;grid-template-columns:1fr}.brand-frame:first-child,.brand-frame:nth-child(4n+1){grid-column:auto;min-height:52vh}.brand-frame{min-height:38vh}.art-grid{margin-top:24px;grid-template-columns:repeat(4,1fr)}.gallery-preview{min-height:58vh}.branding-showcase{height:auto;overflow-x:hidden;overflow-y:auto}.branding-showcase .showcase-shell{height:auto;overflow:visible}.branding-showcase .showcase-sidebar{height:auto;position:static}.branding-showcase .brand-canvas{height:auto;overflow:visible}}
+
+.cms-project-card{display:block;color:inherit;text-decoration:none;margin-bottom:2rem}.cms-project-card img{display:block;width:100%;height:auto;margin-bottom:1rem}.project-tabs a.showcase-project{display:block;text-decoration:none;color:inherit}

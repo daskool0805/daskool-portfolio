@@ -1,65 +1,31 @@
-# Daskool Portfolio
+# Daskool Portfolio + Sanity CMS
 
-Đây là bản source độc lập của website portfolio Daskool, đã bao gồm toàn bộ HTML, CSS, JavaScript, hình ảnh, font local, animation và interaction hiện tại.
+Website: https://daskool.site · CMS: https://daskool.site/admin
 
-## Cấu trúc
+## Quản lý nội dung
 
-- `index.html` — landing page
-- `about.html` — trang About
-- `work.html` — trang Work
-- `work/` — các trang danh mục và Project Detail
-- `assets/` — hình ảnh và font Gontserrat
-- `styles.css` — toàn bộ style và responsive behavior
-- `script.js` — animation và interaction dùng chung
-- `project-data.js` — dữ liệu các Project Detail
-- `project-detail.js` — renderer modular content blocks
-- `vercel.json` — cấu hình deploy Vercel
+1. Mở `/admin` và đăng nhập bằng tài khoản có quyền trong Sanity project `rk9s9iog`.
+2. Chọn Project để sửa hoặc tạo dự án. Điền tiêu đề, slug, danh mục, ảnh đại diện và nội dung.
+3. Sắp xếp các khối ảnh, video, chữ bằng kéo thả trong Content / Gallery.
+4. Đặt Publishing status = Published, sau đó bấm Publish. Website cập nhật sau khoảng 60 giây, không cần deploy lại.
+5. Để ẩn dự án, đặt Publishing status = Draft và Publish, hoặc dùng Unpublish.
 
-Project không cần build và không có dependency bắt buộc.
+Đã nhập 5 dự án gốc vào dataset `production`. Dữ liệu dự phòng trong `project-data.js` chỉ dùng khi API không truy cập được; kết quả rỗng hoặc 404 từ CMS không khôi phục nội dung đã ẩn.
 
-## Chạy local
+## Build và deploy
 
-Không mở trực tiếp file bằng `file://`, vì website sử dụng đường dẫn tuyệt đối bắt đầu bằng `/`.
+Node.js 22 trở lên và npm. Chạy `npm run build`; kết quả ở `dist`, Studio ở `dist/admin`. Vercel tự deploy khi đẩy mã lên nhánh main. API serverless nằm trong `api/`. Cấu hình build và routing nằm trong `vercel.json`.
 
-Tại thư mục project, chạy một local server, ví dụ:
+Project ID mặc định là `rk9s9iog`, dataset `production`; có thể đổi bằng SANITY_PROJECT_ID, SANITY_DATASET, SANITY_STUDIO_PROJECT_ID và SANITY_STUDIO_DATASET. Đây là thông tin công khai. Website public không cần token.
 
-```bash
-python3 -m http.server 8080
-```
+Sanity CORS cần cho phép origin `https://daskool.site` với Allow credentials để Studio đăng nhập.
 
-Sau đó mở `http://localhost:8080`.
+## Phát triển và kiểm thử
 
-## Upload lên GitHub
+`npm test` kiểm tra API và bảo vệ bản nháp. `npm run cms:dev` chạy Studio local sau khi cài dependency trong studio. Dùng Vercel dev để chạy cả website và API local; server static đơn thuần chỉ hiển thị dữ liệu dự phòng.
 
-1. Tạo repository mới trên GitHub.
-2. Giải nén project và mở Terminal tại thư mục `daskool-portfolio`.
-3. Chạy:
+## Chuyển dữ liệu
 
-```bash
-git init
-git add .
-git commit -m "Initial portfolio"
-git branch -M main
-git remote add origin URL_REPOSITORY_CUA_BAN
-git push -u origin main
-```
+`scripts/migrate-projects.mjs` cần SANITY_WRITE_TOKEN trong môi trường local. Script tạo tài liệu bằng createIfNotExists, giữ nguyên nội dung đã tồn tại. Không commit token hoặc file .env. Thu hồi token sau khi chuyển dữ liệu.
 
-## Deploy bằng Vercel
-
-1. Đăng nhập Vercel và chọn **Add New → Project**.
-2. Import repository GitHub vừa tạo.
-3. Framework Preset chọn **Other**.
-4. Không cần Build Command.
-5. Output Directory để trống hoặc dùng `.`.
-6. Chọn **Deploy**.
-
-## Kết nối domain riêng
-
-Sau khi deploy, mở project trong Vercel → **Settings → Domains** → nhập domain. Vercel sẽ cung cấp bản ghi DNS cần thêm tại nơi bạn đã mua domain.
-
-## Cập nhật nội dung thủ công
-
-- Thay ảnh trong `assets/` và giữ nguyên tên file để cập nhật nhanh mà không sửa code.
-- Nội dung Project Detail nằm trong `project-data.js`.
-- Mỗi project có thể chứa các block: `fullImage`, `twoImages`, `video`, `text`, `imageText`, `spacer`.
-- Sau khi chỉnh sửa, commit và push lên GitHub; Vercel sẽ tự deploy lại.
+Preview API chỉ bật khi cả SANITY_API_READ_TOKEN và SANITY_PREVIEW_SECRET được cấu hình phía server. Request preview cần Authorization Bearer với secret; response không được cache. Giao diện preview trực quan chưa được tích hợp.

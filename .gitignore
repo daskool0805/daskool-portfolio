@@ -1,4 +1,17 @@
 .DS_Store
 .vercel
 node_modules
+.env
+.env.local
+studio/.env.local
+dist
+studio/dist
 *.log
+
+.env.*
+!.env.example
+.sanity
+
+.pnpm-store
+studio/pnpm-lock.yaml
+studio/pnpm-workspace.yaml
