@@ -1,11 +1,14 @@
 import {defineArrayMember,defineField,defineType} from 'sanity'
 
 const artwork=(name,title,template)=>defineField({
-  name,title,type:'array',hidden:({parent})=>parent?.template!==template,of:[defineArrayMember({type:'object',fields:[
-    defineField({name:'image',title:'Hình ảnh',type:'image',options:{hotspot:true},validation:Rule=>Rule.required(),fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]}),
+  name,title,type:'array',hidden:({parent})=>parent?.template!==template,of:[defineArrayMember({type:'object',validation:Rule=>Rule.custom(item=>item?.image?.asset||item?.vimeoUrl?true:'Chọn hình ảnh hoặc nhập URL Vimeo.'),fields:[
+    defineField({name:'image',title:'Hình ảnh (hoặc thumbnail cho video)',type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]}),
+    defineField({name:'vimeoUrl',title:'URL video Vimeo',type:'url',description:'Ví dụ: https://vimeo.com/123456789. Nếu có cả hình, hình sẽ làm thumbnail trong gallery.',validation:Rule=>Rule.uri({scheme:['https']}).custom(value=>!value||/^https:\/\/(?:www\.)?(?:vimeo\.com|player\.vimeo\.com)\//i.test(value)||'Chỉ dùng URL từ Vimeo.')}),
+    defineField({name:'videoAspectRatio',title:'Tỉ lệ video',type:'string',initialValue:'16/9',options:{list:[{title:'Ngang 16:9',value:'16/9'},{title:'Vuông 1:1',value:'1/1'},{title:'Dọc 9:16',value:'9/16'},{title:'Ngang 4:3',value:'4/3'}]}}),
+    ...(template==='branding'?[defineField({name:'layout',title:'Bố cục hình',type:'string',initialValue:'full',options:{layout:'radio',list:[{title:'Rộng cả hàng',value:'full'},{title:'Vuông nửa hàng',value:'square'}]}})]:[]),
     defineField({name:'label',title:'Nhãn hiển thị',type:'string'}),
     defineField({name:'caption',title:'Chú thích',type:'string'})
-  ],preview:{select:{media:'image',title:'label',subtitle:'caption'},prepare:({media,title,subtitle})=>({title:title||subtitle||'Artwork',subtitle,media})}})]
+  ],preview:{select:{media:'image',title:'label',subtitle:'caption',vimeoUrl:'vimeoUrl'},prepare:({media,title,subtitle,vimeoUrl})=>({title:title||subtitle||(vimeoUrl?'Vimeo video':'Artwork'),subtitle,media})}})]
 })
 
 export const project=defineType({

@@ -30,6 +30,35 @@
     img.src=url;
     element.replaceChildren(img);
   };
+  const vimeoEmbed=value=>{
+    if(!value)return "";
+    try{
+      const url=new URL(value);
+      if(url.protocol!=="https:"||!["vimeo.com","www.vimeo.com","player.vimeo.com"].includes(url.hostname))return "";
+      const parts=url.pathname.split("/").filter(Boolean),id=parts.find(part=>/^\d+$/.test(part));
+      if(!id)return "";
+      const following=parts[parts.indexOf(id)+1];
+      const hash=url.searchParams.get("h")||(/^[a-f\d]+$/i.test(following||"")?following:"");
+      return `https://player.vimeo.com/video/${id}${hash?`?h=${encodeURIComponent(hash)}`:""}`;
+    }catch{return ""}
+  };
+  const mediaNode=(item,autoplay=false)=>{
+    const video=vimeoEmbed(item.vimeoUrl);
+    if(video){
+      const iframe=document.createElement("iframe");
+      iframe.src=video+(autoplay?`${video.includes("?")?"&":"?"}autoplay=1&muted=1&loop=1`:"");iframe.title=item.caption||item.label||"Vimeo video";
+      iframe.loading="lazy";iframe.allow="autoplay; fullscreen; picture-in-picture";iframe.allowFullscreen=true;
+      iframe.className="showcase-video";
+      const ratio=/^(?:16\/9|9\/16|1\/1|4\/3)$/.test(item.videoAspectRatio||"")?item.videoAspectRatio:"16/9";
+      iframe.style.aspectRatio=ratio;
+      iframe.style.setProperty("--media-ratio",String(ratio.split("/").map(Number).reduce((width,height)=>width/height)));
+      return iframe;
+    }
+    const url=imageUrl(item.image||item);
+    if(!url)return null;
+    const img=document.createElement("img");img.src=url;img.alt=imageAlt(item.image||item);img.decoding="async";
+    return img;
+  };
   const uniqueProjects=projects=>{
     const map=new Map();
     projects.forEach(project=>{
@@ -111,9 +140,11 @@
       copy.textContent=project.description||"";
       canvas.replaceChildren();
       (project.brandingItems||[]).forEach((item,index)=>{
+        const media=mediaNode(item);
+        if(!media)return;
         const frame=document.createElement("div");frame.className="brand-frame";
-        setImage(frame,item.image||item);
-        const label=document.createElement("span");label.textContent=item.label||`project image / ${String(index+1).padStart(2,"0")}`;frame.append(label);canvas.append(frame);
+        if(item.layout==="square"&&!item.vimeoUrl)frame.classList.add("is-square");
+        frame.append(media);canvas.append(frame);
       });
       syncUrl(project);
     };
@@ -129,18 +160,18 @@
     const projects=categoryProjects(key).filter(project=>project.template==="gallery");
     if(!projects.length)return;
     const labels={social:"creative social design",motion:"video & motion",photo:"photography"};
-    const title=root.querySelector("[data-gallery-category]"),tabs=root.querySelector("[data-gallery-projects]"),copy=root.querySelector("[data-gallery-copy]"),grid=root.querySelector("[data-art-grid]"),preview=root.querySelector("[data-gallery-preview]"),previewLabel=root.querySelector("[data-preview-label]");
+    const title=root.querySelector("[data-gallery-category]"),tabs=root.querySelector("[data-gallery-projects]"),copy=root.querySelector("[data-gallery-copy]"),grid=root.querySelector("[data-art-grid]"),preview=root.querySelector("[data-gallery-preview]");
     title.textContent=labels[key]||key;
-    const selectArtwork=(button,item,index,project)=>{
+    const clearPreview=()=>{[...grid.children].forEach(node=>node.classList.remove("is-active"));preview.replaceChildren()};
+    const selectArtwork=(button,item)=>{
       [...grid.children].forEach(node=>node.classList.toggle("is-active",node===button));
-      preview.style.backgroundImage="";setImage(preview,item.image||item);
-      previewLabel.textContent=item.caption||`${project.title} / ${String(index+1).padStart(2,"0")}`;
+      const media=mediaNode(item,true);preview.replaceChildren(...(media?[media]:[]));
     };
     const activate=project=>{
       [...tabs.children].forEach(button=>{const active=button.dataset.slug===project.slug;button.classList.toggle("is-active",active);button.setAttribute("aria-selected",String(active))});
       copy.textContent=project.description||"";grid.replaceChildren();
-      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${index+1}`);setImage(button,item.image||item);const number=document.createElement("span");number.textContent=String(index+1).padStart(2,"0");button.append(number);["pointerenter","focus","click"].forEach(event=>button.addEventListener(event,()=>selectArtwork(button,item,index,project)));grid.append(button)});
-      if(grid.firstElementChild&&project.galleryItems&&project.galleryItems[0])selectArtwork(grid.firstElementChild,project.galleryItems[0],0,project);
+      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${item.vimeoUrl?'video':`artwork ${index+1}`}`);setImage(button,item.image);if(item.vimeoUrl&&!imageUrl(item.image))button.classList.add("is-video");const number=document.createElement("span");number.textContent=item.vimeoUrl?"VIDEO":String(index+1).padStart(2,"0");button.append(number);button.addEventListener("pointerenter",()=>selectArtwork(button,item));button.addEventListener("pointerleave",clearPreview);button.addEventListener("focus",()=>selectArtwork(button,item));button.addEventListener("blur",clearPreview);grid.append(button)});
+      clearPreview();
       syncUrl(project,key);
     };
     tabs.replaceChildren();
@@ -151,7 +182,7 @@
   function applyAll(){applyLanding();applyAbout();if(!state.usingLegacy)applyWorkIndex();renderBranding();renderGallery();document.dispatchEvent(new CustomEvent("daskool:cms-ready",{detail:state}))}
   async function load(){
     if(!config.projectId){applyAll();return state}
-    const query=`{\"settings\":*[_type==\"siteSettings\"][0]{landingMotionImages[]{alt,orientation,asset->{url}},landingCategoryImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}},aboutHoverImages[]{orientation,image{alt,asset->{url}}},workCategoryMotionImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}}},\"projects\":*[_type==\"showcaseProject\" && defined(slug.current) && defined(template)]|order(order asc){_id,title,\"slug\":slug.current,categories,template,description,brandingItems[]{label,image{alt,asset->{url}}},galleryItems[]{caption,image{alt,asset->{url}}}},\"legacy\":*[_type==\"project\" && status==\"published\"]|order(projectOrder asc){_id,title,\"slug\":slug.current,category,shortDescription,thumbnail{alt,asset->{url}},coverImage{alt,asset->{url}}}}`;
+    const query=`{\"settings\":*[_type==\"siteSettings\"][0]{landingMotionImages[]{alt,orientation,asset->{url}},landingCategoryImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}},aboutHoverImages[]{orientation,image{alt,asset->{url}}},workCategoryMotionImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}}},\"projects\":*[_type==\"showcaseProject\" && defined(slug.current) && defined(template)]|order(order asc){_id,title,\"slug\":slug.current,categories,template,description,brandingItems[]{label,layout,vimeoUrl,videoAspectRatio,image{alt,asset->{url}}},galleryItems[]{caption,vimeoUrl,videoAspectRatio,image{alt,asset->{url}}}},\"legacy\":*[_type==\"project\" && status==\"published\"]|order(projectOrder asc){_id,title,\"slug\":slug.current,category,shortDescription,thumbnail{alt,asset->{url}},coverImage{alt,asset->{url}}}}`;
     const host=config.useCdn!==false?"apicdn":"api";
     const url=`https://${config.projectId}.${host}.sanity.io/v${config.apiVersion||"2026-09-01"}/data/query/${config.dataset||"production"}?query=${encodeURIComponent(query)}`;
     try{const response=await fetch(url);if(!response.ok)throw new Error(`CMS ${response.status}`);const payload=await response.json();state.settings=payload.result&&payload.result.settings;const result=payload.result||{};const legacy=(result.legacy||[]).flatMap(project=>{const categories=(project.category||[]).filter(category=>categoryKeys.includes(category));const image=project.coverImage?.asset?.url?project.coverImage:project.thumbnail;return categories.map(category=>({title:project.title,slug:`${project.slug}-${category}`,categories:[category],template:category==='branding'?'branding':'gallery',description:project.shortDescription||'',brandingItems:image?[{image,label:project.title}]:[],galleryItems:image?[{image,caption:project.title}]:[]}))});state.usingLegacy=!result.projects?.length;state.projects=state.usingLegacy?legacy:result.projects;state.connected=true;applyAll()}catch(error){console.warn("Daskool CMS fallback active:",error);applyAll()}

@@ -367,3 +367,26 @@
 .work-page .work-display .project-list{display:grid;grid-template-rows:repeat(var(--project-rows,6),max-content);grid-auto-flow:column;grid-auto-columns:max-content;column-gap:clamp(16px,2vw,32px);width:max-content;max-width:calc(100vw - 11vw);direction:rtl;text-align:right}
 .work-page .work-display .project-name{direction:ltr;white-space:nowrap}
 @media(max-width:760px){.work-page .work-display{min-height:0;display:block}.work-page .work-display .project-stage{padding:42px 0 12px}.work-page .work-display .project-list{display:block;width:100%;max-width:100%;text-align:right}.work-page .work-display .project-name{text-align:right;white-space:normal}}
+
+/* Showcase media: natural image ratios and Vimeo embeds within each template. */
+.showcase-kicker{text-transform:none;letter-spacing:.02em}
+.branding-showcase .brand-canvas{width:min(100%,960px);justify-self:end;column-gap:14px;row-gap:14px;padding:0 0 5vh;scrollbar-width:thin;scrollbar-color:rgba(70,91,70,.28) transparent}
+.branding-showcase .brand-canvas::-webkit-scrollbar{width:6px}
+.branding-showcase .brand-canvas::-webkit-scrollbar-thumb{background:rgba(70,91,70,.28);border-radius:8px}
+.branding-showcase .brand-canvas::-webkit-scrollbar-track{background:transparent}
+.branding-showcase .brand-frame,.branding-showcase .brand-frame:first-child,.branding-showcase .brand-frame:nth-child(4n+1){grid-column:span 2;min-height:0;border:0;background:transparent;overflow:visible}
+.branding-showcase .brand-frame.is-square{grid-column:span 1;aspect-ratio:1;display:grid;place-items:center;overflow:hidden}
+.branding-showcase .brand-frame:before,.gallery-preview:before{display:none}
+.branding-showcase .brand-frame img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}
+.branding-showcase .brand-frame.is-square img{width:auto;max-width:100%;max-height:100%;height:auto}
+.showcase-video{display:block;width:100%;height:auto;max-width:100%;border:0}
+.gallery-stage{height:calc(100vh - 170px);min-height:0;overflow:hidden}
+.gallery-preview{height:100%;min-height:0;border:0;background:transparent!important;display:grid;place-items:center;overflow:hidden}
+.gallery-preview img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.gallery-preview .showcase-video{width:min(100%,calc((100vh - 170px) * var(--media-ratio,1.7778)));max-height:100%;aspect-ratio:var(--media-aspect,16/9);pointer-events:none}
+.art-thumb:before{display:none}
+.art-thumb:after{content:"";position:absolute;inset:0;background:var(--green);opacity:0;transition:opacity .2s ease}
+.art-thumb:hover:after,.art-thumb:focus-visible:after,.art-thumb.is-active:after{opacity:1}
+.art-thumb span{z-index:2}
+.art-thumb.is-video{background:#171717;color:#fff}
+@media(max-width:820px){.branding-showcase .brand-canvas{width:100%;gap:12px}.gallery-stage{height:58vh;margin-top:34px}.gallery-preview{height:100%;min-height:0}.gallery-preview .showcase-video{width:min(100%,calc(58vh * var(--media-ratio,1.7778)))}}

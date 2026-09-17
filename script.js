@@ -446,7 +446,7 @@ if(brandingTabs.length){
     const data=brandingProjects[tab.dataset.project];
     brandingTabs.forEach(item=>{const active=item===tab;item.classList.toggle('is-active',active);item.setAttribute('aria-selected',String(active))});
     copy.textContent=data.copy;
-    frames.forEach((frame,index)=>{frame.classList.remove('warm','cool','green');frame.classList.add(data.tones[index%data.tones.length]);frame.querySelector('span').textContent=data.labels[index%data.labels.length].replace(/\d+$/,String(index+1).padStart(2,'0'))});
+    frames.forEach((frame,index)=>{frame.classList.remove('warm','cool','green');frame.classList.add(data.tones[index%data.tones.length])});
   };
   brandingTabs.forEach(tab=>tab.addEventListener('click',()=>activate(tab)));
 }
@@ -459,13 +459,14 @@ if(galleryRoot){
     photo:{title:'photography',projects:[['Lăng Ông Bà Chiểu','A photographic study of local culture, architecture and place.'],['V.DienGiaHuy','Character-led imagery shaped by personal expression and context.'],['ExoTrails','Outdoor photography focused on movement, community and discovery.']]}
   };
   const params=new URLSearchParams(location.search),key=sets[params.get('category')]?params.get('category'):'social',set=sets[key];
-  const title=document.querySelector('[data-gallery-category]'),tabs=document.querySelector('[data-gallery-projects]'),copy=document.querySelector('[data-gallery-copy]'),grid=document.querySelector('[data-art-grid]'),preview=document.querySelector('[data-gallery-preview]'),label=document.querySelector('[data-preview-label]');
+  const title=document.querySelector('[data-gallery-category]'),tabs=document.querySelector('[data-gallery-projects]'),copy=document.querySelector('[data-gallery-copy]'),grid=document.querySelector('[data-art-grid]'),preview=document.querySelector('[data-gallery-preview]');
   document.title=`${set.title} — Daskool`;title.textContent=set.title;
-  const selectArtwork=(button,index,project)=>{[...grid.children].forEach(item=>item.classList.toggle('is-active',item===button));preview.classList.remove('warm','cool','green');preview.classList.add(['green','cool','warm'][index%3]);label.textContent=`${project.toLowerCase()} / artwork ${String(index+1).padStart(2,'0')}`};
+  const clearPreview=()=>{[...grid.children].forEach(item=>item.classList.remove('is-active'));preview.classList.remove('warm','cool','green')};
+  const selectArtwork=(button,index)=>{[...grid.children].forEach(item=>item.classList.toggle('is-active',item===button));preview.classList.remove('warm','cool','green');preview.classList.add(['green','cool','warm'][index%3])};
   const renderArtworks=project=>{
     grid.replaceChildren();
-    Array.from({length:12},(_,index)=>{const button=document.createElement('button');button.className='art-thumb';button.type='button';button.setAttribute('aria-label',`${project} artwork ${index+1}`);button.innerHTML=`<span>${String(index+1).padStart(2,'0')}</span>`;button.addEventListener('pointerenter',()=>selectArtwork(button,index,project));button.addEventListener('focus',()=>selectArtwork(button,index,project));button.addEventListener('click',()=>selectArtwork(button,index,project));grid.append(button);return button});
-    selectArtwork(grid.firstElementChild,0,project);
+    Array.from({length:12},(_,index)=>{const button=document.createElement('button');button.className='art-thumb';button.type='button';button.setAttribute('aria-label',`${project} artwork ${index+1}`);button.innerHTML=`<span>${String(index+1).padStart(2,'0')}</span>`;button.addEventListener('pointerenter',()=>selectArtwork(button,index));button.addEventListener('pointerleave',clearPreview);button.addEventListener('focus',()=>selectArtwork(button,index));button.addEventListener('blur',clearPreview);grid.append(button);return button});
+    clearPreview();
   };
   set.projects.forEach(([name,description],index)=>{const button=document.createElement('button');button.className=`showcase-project${index===0?' is-active':''}`;button.type='button';button.textContent=name;button.setAttribute('aria-selected',String(index===0));button.addEventListener('click',()=>{[...tabs.children].forEach(item=>{const active=item===button;item.classList.toggle('is-active',active);item.setAttribute('aria-selected',String(active))});copy.textContent=description;renderArtworks(name)});tabs.append(button)});
   copy.textContent=set.projects[0][1];renderArtworks(set.projects[0][0]);
