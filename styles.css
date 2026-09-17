@@ -341,13 +341,16 @@
   .about-hover-frame.is-landscape.has-cms-image{--about-max-height:min(11vh,100px)}
 }
 
-/* About navigation subtitle breaks into small letters near the links. */
-.about-nav{flex-direction:column;align-items:flex-end;gap:2px;font-size:clamp(16px,1.55vw,22px);line-height:1.05;pointer-events:none}
+/* Compact alternating badge in the open lower-right corner of About. */
+.about-nav{font-size:clamp(16px,1.55vw,22px);line-height:1.05;pointer-events:none}
 .about-nav-links{display:flex;gap:0;pointer-events:auto}
-.about-nav-tagline{display:flex;flex-direction:column;align-items:flex-end;max-width:220px;text-align:right;font-weight:700;pointer-events:none}
-.about-nav-tagline strong{color:var(--green);font-weight:700}
-.tagline-line{display:block;white-space:nowrap}
-.scatter-letter{display:inline-block;white-space:pre;transform:translate3d(0,0,0) rotate(0);transition:transform .48s cubic-bezier(.2,.72,.2,1),font-size .48s,opacity .36s;transition-delay:0s}
-.about-nav-tagline.is-scattered .scatter-letter{font-size:.58em;text-transform:lowercase;opacity:.32;transform:translate3d(var(--scatter-x),var(--scatter-y),0) rotate(var(--scatter-r));transition-delay:var(--scatter-delay)}
-@media (max-width:760px){.about-nav{font-size:16px}.about-nav-tagline{max-width:160px}}
-@media (prefers-reduced-motion:reduce){.scatter-letter{transition:none}}
+.about-evolving-badge{position:fixed;right:clamp(16px,3.5vw,48px);bottom:clamp(16px,3.5vh,36px);z-index:35;width:160px;height:58px;pointer-events:none;font-family:inherit;font-size:11px;font-weight:800;line-height:1.08;text-align:center;letter-spacing:.025em}
+.badge-frame{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fffdf2}
+.badge-frame strong{color:#aeffa3;font-weight:800}
+.badge-designer{letter-spacing:.32em;padding-left:.32em}
+.badge-frame--green{background:#087d21;animation:badge-green-blink .8s steps(1,end) infinite}
+.badge-frame--black{background:#101010;animation:badge-black-blink .8s steps(1,end) infinite}
+@keyframes badge-green-blink{0%,49.99%{visibility:visible}50%,100%{visibility:hidden}}
+@keyframes badge-black-blink{0%,49.99%{visibility:hidden}50%,100%{visibility:visible}}
+@media (max-width:760px){.about-nav{font-size:16px}.about-evolving-badge{right:14px;bottom:14px;width:144px;height:54px;font-size:10px}}
+@media (prefers-reduced-motion:reduce){.badge-frame--green{animation:none}.badge-frame--black{display:none}}
