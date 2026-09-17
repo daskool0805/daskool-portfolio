@@ -151,7 +151,6 @@
 .category-art-stack .placeholder-frame:before,.category-art-stack .placeholder-frame:after{content:"";position:absolute;background:rgba(9,196,0,.28)}
 .category-art-stack .placeholder-frame:before{left:-12%;top:49.8%;width:124%;height:1px;transform:rotate(45deg)}
 .category-art-stack .placeholder-frame:after{left:-12%;top:49.8%;width:124%;height:1px;transform:rotate(-45deg)}
-.category-art-stack .placeholder-frame span{position:absolute;z-index:2;left:14px;bottom:12px;color:#191919;font:400 12px/1 Gontserrat,Arial,sans-serif;letter-spacing:.08em}
 .category-art-stack .tone-b{background:#cdcfca}.category-art-stack .tone-c{background:#dad6ca}.category-art-stack .tone-d{background:#c9d3c9}
 .category-art-stack.is-active .placeholder-frame{animation:category-placeholder-cycle .75s steps(1,end) infinite both}
 .category-art-stack.is-active .placeholder-frame:nth-child(2){animation-delay:-.1875s}

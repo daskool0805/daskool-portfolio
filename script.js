@@ -32,7 +32,7 @@ if(cats.length){
     document.querySelectorAll('.project-name').forEach(p=>p.classList.toggle('highlight',(p.dataset.categories||'').split(/\s+/).includes(c.dataset.category)));
     if(categoryArtStack){
       window.DASKOOL_CMS?.applyWorkCategory(c.dataset.category,categoryArtStack.children);
-      shuffle([...categoryArtStack.children]).forEach((frame,index)=>{frame.querySelector('span').textContent=String(index+1).padStart(2,'0');categoryArtStack.append(frame)});
+      shuffle([...categoryArtStack.children]).forEach(frame=>categoryArtStack.append(frame));
       categoryArtStack.dataset.category=c.dataset.category;
       categoryArtStack.classList.remove('is-active');
       void categoryArtStack.offsetWidth;
