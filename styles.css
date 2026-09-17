@@ -345,15 +345,15 @@
 .about-nav{font-size:clamp(16px,1.55vw,22px);line-height:1.05;pointer-events:none}
 .about-nav-links{display:flex;gap:0;pointer-events:auto}
 .about{padding-bottom:180px}
-.about-evolving-badge{position:absolute;left:56%;top:calc(100vh - 120px);z-index:35;width:235px;height:92px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;font-family:inherit;font-size:21px;font-weight:700;line-height:1.08;text-align:center;letter-spacing:.01em}
+.about-evolving-badge{position:absolute;left:56%;top:calc(100vh - 120px);z-index:35;width:117.5px;height:46px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;font-family:inherit;font-size:10.5px;font-weight:700;line-height:1.08;text-align:center;letter-spacing:.01em}
 .about-evolving-badge.is-dragging{cursor:grabbing}
 .about-evolving-badge:focus-visible{outline:2px solid var(--green);outline-offset:4px}
 .badge-frame{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#fff;color:#111}
 .badge-frame strong{color:var(--green);font-weight:700}
 .badge-designer{letter-spacing:.35em;padding-left:.35em}
-.badge-frame--white{animation:badge-white-blink .8s steps(1,end) infinite}
-.badge-frame--black{background:#111;animation:badge-black-blink .8s steps(1,end) infinite}
+.badge-frame--white{animation:badge-white-blink .36s steps(1,end) infinite}
+.badge-frame--black{background:#111;animation:badge-black-blink .36s steps(1,end) infinite}
 @keyframes badge-white-blink{0%,49.99%{visibility:visible}50%,100%{visibility:hidden}}
 @keyframes badge-black-blink{0%,49.99%{visibility:hidden}50%,100%{visibility:visible}}
-@media (max-width:760px){.about-nav{font-size:16px}.about{padding-bottom:150px}.about-evolving-badge{width:195px;height:76px;font-size:17px}}
+@media (max-width:760px){.about-nav{font-size:16px}.about{padding-bottom:150px}.about-evolving-badge{width:97.5px;height:38px;font-size:8.5px}}
 @media (prefers-reduced-motion:reduce){.badge-frame--white{animation:none}.badge-frame--black{display:none}}
