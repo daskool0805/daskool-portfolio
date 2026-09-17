@@ -312,3 +312,14 @@
 .mock-frame.has-cms-image,.category-thumbs i.has-cms-image,.placeholder-frame.has-cms-image,.about-hover-frame.has-cms-image,.brand-frame.has-cms-image,.art-thumb.has-cms-image,.gallery-preview.has-cms-image{background-repeat:no-repeat;background-size:cover;background-position:center}
 .mock-frame.has-cms-image span,.brand-frame.has-cms-image span,.gallery-preview.has-cms-image span,.art-thumb.has-cms-image span{background:rgba(251,250,239,.82);padding:4px 6px}
 .category-art-stack .placeholder-frame.has-cms-image:before,.category-art-stack .placeholder-frame.has-cms-image:after,.about-hover-frame.has-cms-image:before,.about-hover-frame.has-cms-image:after,.brand-frame.has-cms-image:before,.gallery-preview.has-cms-image:before,.art-thumb.has-cms-image:before{display:none}
+
+/* Landing images keep their own proportions inside the original maximum footprint. */
+.mock-frame{--frame-max-width:clamp(340px,33.333vw,540px);width:var(--frame-max-width);border:0;box-shadow:none}
+.mock-frame.is-focus{box-shadow:none}
+.mock-frame.has-cms-image{width:calc(var(--frame-max-width) * var(--fit-w));aspect-ratio:var(--image-ratio);height:auto;background:transparent!important}
+.mock-frame img{display:block;width:100%;height:auto;object-fit:contain}
+.category-thumbs i{border:0;box-shadow:none}
+.category-thumbs i.has-cms-image{inset:auto;left:50%;top:50%;width:calc(100% * var(--fit-w));height:calc(100% * var(--fit-h));background:transparent!important;transform:translate(-50%,-50%)!important}
+.category-thumbs i img{display:block;width:100%;height:100%;object-fit:contain}
+@media (min-width:761px) and (max-width:1100px){.mock-frame{--frame-max-width:clamp(310px,40vw,440px)}}
+@media (max-width:760px){.mock-frame{--frame-max-width:300px}}

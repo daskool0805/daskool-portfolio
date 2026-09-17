@@ -13,6 +13,23 @@
     element.style.backgroundPosition="center";
     element.classList.add("has-cms-image");
   };
+  const setAdaptiveImage=(element,value,frameRatio)=>{
+    const url=imageUrl(value);
+    if(!element||!url)return;
+    const img=document.createElement('img');
+    img.alt=imageAlt(value);
+    img.decoding='async';
+    img.addEventListener('load',()=>{
+      const ratio=img.naturalWidth/img.naturalHeight;
+      if(!Number.isFinite(ratio)||ratio<=0)return;
+      element.style.setProperty('--image-ratio',ratio);
+      element.style.setProperty('--fit-w',Math.min(1,ratio/frameRatio));
+      element.style.setProperty('--fit-h',Math.min(1,frameRatio/ratio));
+      element.classList.add('has-cms-image');
+    },{once:true});
+    img.src=url;
+    element.replaceChildren(img);
+  };
   const uniqueProjects=projects=>{
     const map=new Map();
     projects.forEach(project=>{
@@ -39,11 +56,11 @@
   function applyLanding(){
     const settings=state.settings||{};
     const motion=settings.landingMotionImages||[];
-    document.querySelectorAll(".mock-frame").forEach((frame,index)=>setImage(frame,motion[index]));
+    document.querySelectorAll(".mock-frame").forEach((frame,index)=>setAdaptiveImage(frame,motion[index],1.25));
     const groups=settings.landingCategoryImages||{};
     document.querySelectorAll(".landing-categories a[data-category]").forEach(link=>{
       const images=groups[link.dataset.category]||[];
-      link.querySelectorAll(".category-thumbs i").forEach((frame,index)=>setImage(frame,images[index]));
+      link.querySelectorAll(".category-thumbs i").forEach((frame,index)=>setAdaptiveImage(frame,images[index],1));
     });
   }
 
