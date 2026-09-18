@@ -7,7 +7,7 @@ Website: https://daskool.site · CMS: https://daskool.site/admin
 1. Mở `/admin` và đăng nhập bằng tài khoản có quyền trong Sanity project `rk9s9iog`.
 2. **Project** quản lý các trang chi tiết dự án cũ. Sửa nội dung/ảnh và đặt Publishing status = Published trước khi Publish.
 3. **Work Showcase** quản lý dự án trên trang Work và hai kiểu trình bày Branding/Gallery. Chọn danh mục, template tương ứng, thêm ảnh vào Branding Items hoặc Gallery Items, rồi Publish. Có thể tạo hai mục cùng tên cho các danh mục khác nhau; dùng slug riêng cho từng mục.
-4. **Site Images** quản lý ảnh chuyển động trang chủ, ảnh theo danh mục, 50 ảnh hover trang About và ảnh chuyển động trang Work. Tạo một document Site Images rồi Publish.
+4. **Site Images** quản lý ảnh chuyển động trang chủ, ảnh theo danh mục, tối đa 100 ảnh hover trang About và ảnh chuyển động trang Work. Tạo một document Site Images rồi Publish.
 5. Website lấy dữ liệu Sanity sau khi Publish, không cần deploy lại cho mỗi lần sửa nội dung.
 
 Đã nhập 5 Project gốc vào dataset `production`. Hai mục Work Showcase và Site Images mới hiện chưa có document; giao diện dùng dữ liệu/khung dự phòng cho đến khi bạn điền và Publish. Danh sách Work mẫu vẫn giữ đủ 6 tên khi Work Showcase chưa có dữ liệu. Dữ liệu dự phòng của trang chi tiết trong `project-data.js` chỉ dùng khi API không truy cập được; kết quả rỗng hoặc 404 từ CMS không khôi phục nội dung đã ẩn.
