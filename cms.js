@@ -170,7 +170,7 @@
     const activate=project=>{
       [...tabs.children].forEach(button=>{const active=button.dataset.slug===project.slug;button.classList.toggle("is-active",active);button.setAttribute("aria-selected",String(active))});
       copy.textContent=project.description||"";grid.replaceChildren();
-      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${item.vimeoUrl?'video':`artwork ${index+1}`}`);setImage(button,item.image);if(item.vimeoUrl&&!imageUrl(item.image))button.classList.add("is-video");const number=document.createElement("span");number.textContent=item.vimeoUrl?"VIDEO":String(index+1).padStart(2,"0");button.append(number);button.addEventListener("pointerenter",()=>selectArtwork(button,item));button.addEventListener("pointerleave",clearPreview);button.addEventListener("focus",()=>selectArtwork(button,item));button.addEventListener("blur",clearPreview);grid.append(button)});
+      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${item.vimeoUrl?'video':`artwork ${index+1}`}`);setImage(button,item.image);if(item.vimeoUrl&&!imageUrl(item.image))button.classList.add("is-video");button.addEventListener("pointerenter",()=>selectArtwork(button,item));button.addEventListener("pointerleave",clearPreview);button.addEventListener("focus",()=>selectArtwork(button,item));button.addEventListener("blur",clearPreview);grid.append(button)});
       clearPreview();
       syncUrl(project,key);
     };
