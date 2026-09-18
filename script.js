@@ -10,7 +10,7 @@ if(landingHeroBio){
     logoFramePending=false;
     const range=Math.max(1,innerHeight*.72);
     const progress=Math.max(0,Math.min(1,scrollY/range));
-    const startTop=innerHeight-270;
+    const startTop=innerHeight-(matchMedia('(max-width:760px)').matches?320:270);
     const endTop=18;
     const translateY=(endTop-startTop)*progress;
     const scale=1-progress*.7;
@@ -28,6 +28,12 @@ if(morphText){const original=morphText.textContent.trim();morphText.classList.ad
 const cats=[...document.querySelectorAll('.category')],categoryArtStack=document.querySelector('.category-art-stack');
 if(cats.length){
   const shuffle=list=>list.map(value=>({value,sort:Math.random()})).sort((a,b)=>a.sort-b.sort).map(item=>item.value);
+  const updateMobileCategoryFrames=()=>{
+    if(!matchMedia('(max-width:760px)').matches)return;
+    cats.forEach(category=>window.DASKOOL_CMS?.applyWorkCategory(category.dataset.category,category.querySelectorAll('.mobile-category-frames i')));
+  };
+  updateMobileCategoryFrames();
+  addEventListener('resize',updateMobileCategoryFrames);
   const set=c=>{
     document.querySelectorAll('.project-name').forEach(p=>p.classList.toggle('highlight',(p.dataset.categories||'').split(/\s+/).includes(c.dataset.category)));
     if(categoryArtStack){
@@ -43,6 +49,7 @@ if(cats.length){
   document.querySelector('.category-dock')?.addEventListener('mouseleave',()=>{document.querySelectorAll('.project-name').forEach(p=>p.classList.remove('highlight'));categoryArtStack?.classList.remove('is-active')});
   document.addEventListener('daskool:cms-ready',()=>{
     if(categoryArtStack?.dataset.category)window.DASKOOL_CMS?.applyWorkCategory(categoryArtStack.dataset.category,categoryArtStack.children);
+    updateMobileCategoryFrames();
   });
 }
 
