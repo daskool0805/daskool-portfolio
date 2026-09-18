@@ -231,7 +231,7 @@
 @media(max-width:820px){.showcase-nav{top:24px;left:22px}.showcase-shell{padding:88px 22px 36px;display:block}.showcase-sidebar{min-height:auto}.project-description{max-width:48ch}.brand-canvas,.gallery-stage{margin-top:34px;grid-template-columns:1fr}.brand-frame:first-child,.brand-frame:nth-child(4n+1){grid-column:auto;min-height:52vh}.brand-frame{min-height:38vh}.art-grid{margin-top:24px;grid-template-columns:repeat(4,1fr)}.gallery-preview{min-height:58vh}.branding-showcase{height:auto;overflow-x:hidden;overflow-y:auto}.branding-showcase .showcase-shell{height:auto;overflow:visible}.branding-showcase .showcase-sidebar{height:auto;position:static}.branding-showcase .brand-canvas{height:auto;overflow:visible}}
 
 /* About hover field + final responsive pass. Desktop visual system is preserved. */
-.about-hover-field{position:fixed;z-index:20;inset:0;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(5,minmax(0,1fr));pointer-events:auto}
+.about-hover-field{position:fixed;z-index:20;inset:0;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr));pointer-events:auto}
 .about-hover-cell{position:relative;display:grid;place-items:center;min-width:0;min-height:0}
 .about-hover-frame{position:relative;display:block;overflow:hidden;width:auto;height:min(78%,156px);aspect-ratio:3/4;border:1px solid rgba(9,196,0,.72);background:#d4d4cf;box-shadow:0 12px 28px rgba(0,0,0,.08);opacity:0;transform:scale(.9);transition:opacity .5s ease,transform .55s cubic-bezier(.2,.72,.2,1);pointer-events:none}
 .about-hover-frame.is-landscape{width:auto;height:min(62%,104px);aspect-ratio:4/3}
@@ -246,8 +246,7 @@
   .nav{padding:26px 4vw;font-size:19px}
   .corner-brand{left:4vw}
   .about{padding-left:5vw;padding-right:5vw}
-  .about-hover-field{grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(7,minmax(0,1fr))}
-  .about-hover-cell:nth-child(n+49){grid-column:span 4}
+  .about-hover-field{grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr))}
   .about-hover-frame{height:min(74%,92px)}
   .about-hover-frame.is-landscape{height:min(58%,68px)}
   .step-hero{min-height:720px}
@@ -264,7 +263,7 @@
 @media (max-width:760px){
   html{-webkit-text-size-adjust:100%}
   .nav{padding:20px 18px;font-size:16px}
-  .about-hover-field{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr))}
+  .about-hover-field{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(20,minmax(0,1fr))}
   .about-hover-frame{height:min(70%,58px);box-shadow:0 7px 18px rgba(0,0,0,.07)}
   .about-hover-frame.is-landscape{height:min(54%,42px)}
   .about{padding-left:20px;padding-right:20px}
@@ -408,3 +407,20 @@
 .gallery-preview .gallery-preview-eye{position:absolute;z-index:1;top:50%;left:50%;width:max-content;max-width:none;margin:0;transform:translate(-50%,-50%);color:rgba(9,196,0,.32);font-size:clamp(9px,1.05vw,15px);line-height:.86;letter-spacing:.045em;white-space:pre;pointer-events:none}
 .gallery-preview-media{position:absolute;z-index:2;inset:0;pointer-events:none}
 @media(max-width:820px){.gallery-preview .gallery-preview-eye{font-size:clamp(7px,1.85vw,10px)}}
+
+/* Keep gallery thumbnails directly below the selected project's copy. */
+.gallery-sidebar .project-description{margin-bottom:0}
+.gallery-sidebar .art-grid{margin-top:clamp(24px,3.2vh,38px)}
+
+/* Match the work list's right and bottom viewport margins. */
+.work-page{--work-edge:5.5vw;padding-bottom:var(--work-edge)}
+.work-page .work-display{min-height:calc(100vh - 104px - var(--work-edge))}
+@media (min-width:761px) and (max-width:1100px){.work-page{--work-edge:4vw}}
+@media (max-width:760px){.work-page{--work-edge:22px}.work-page .work-display{min-height:0}}
+@media (max-width:390px){.work-page{--work-edge:16px}}
+
+/* About occupies one viewport; the copy is fitted by script for short screens. */
+html:has(.about-body),.about-body{height:100%;overflow:hidden;overscroll-behavior:none}
+.about-body .about{height:100dvh;min-height:0;overflow:hidden}
+.about-body .about-copy{transform-origin:top left}
+@media (max-width:760px){.about-body .about{padding-top:clamp(88px,16vh,150px);padding-bottom:20px}.about-body .timeline{margin-top:28px}.about-body .timeline p{margin-bottom:14px}}
