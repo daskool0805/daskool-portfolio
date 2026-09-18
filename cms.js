@@ -5,10 +5,11 @@
   const clean=value=>(value||"").trim();
   const imageUrl=value=>value&&typeof value==="object"?(value.asset&&value.asset.url)||value.url||"":value||"";
   const imageAlt=value=>value&&typeof value==="object"?value.alt||"":"";
+  const sizedImage=(url,width)=>url.includes("cdn.sanity.io")?`${url}${url.includes("?")?"&":"?"}auto=format&fit=max&w=${width}`:url;
   const setImage=(element,value)=>{
     const url=imageUrl(value);
     if(!element||!url)return;
-    element.style.backgroundImage=`url("${url.replace(/"/g,"%22")}")`;
+    element.style.backgroundImage=`url("${sizedImage(url,480).replace(/"/g,"%22")}")`;
     element.style.backgroundSize="cover";
     element.style.backgroundPosition="center";
     element.classList.add("has-cms-image");
@@ -19,6 +20,11 @@
     const img=document.createElement('img');
     img.alt=imageAlt(value);
     img.decoding='async';
+    img.loading='lazy';
+    if(url.includes('cdn.sanity.io')){
+      img.srcset=`${sizedImage(url,640)} 640w, ${sizedImage(url,1200)} 1200w, ${sizedImage(url,1800)} 1800w`;
+      img.sizes='(max-width:760px) 100vw, 50vw';
+    }
     img.addEventListener('load',()=>{
       const ratio=img.naturalWidth/img.naturalHeight;
       if(!Number.isFinite(ratio)||ratio<=0)return;
@@ -27,7 +33,7 @@
       element.style.setProperty('--fit-h',Math.min(1,frameRatio/ratio));
       element.classList.add('has-cms-image');
     },{once:true});
-    img.src=url;
+    img.src=sizedImage(url,1200);
     element.replaceChildren(img);
   };
   const vimeoEmbed=value=>{
@@ -56,7 +62,8 @@
     }
     const url=imageUrl(item.image||item);
     if(!url)return null;
-    const img=document.createElement("img");img.src=url;img.alt=imageAlt(item.image||item);img.decoding="async";
+    const img=document.createElement("img");img.src=sizedImage(url,1200);img.alt=imageAlt(item.image||item)||item.caption||item.label||"";img.decoding="async";img.loading="lazy";
+    if(url.includes("cdn.sanity.io")){img.srcset=`${sizedImage(url,640)} 640w, ${sizedImage(url,1200)} 1200w, ${sizedImage(url,1800)} 1800w`;img.sizes="(max-width:760px) 100vw, 66vw"}
     return img;
   };
   const uniqueProjects=projects=>{
@@ -170,8 +177,9 @@
     const activate=project=>{
       [...tabs.children].forEach(button=>{const active=button.dataset.slug===project.slug;button.classList.toggle("is-active",active);button.setAttribute("aria-selected",String(active))});
       copy.textContent=project.description||"";grid.replaceChildren();
-      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${item.vimeoUrl?'video':`artwork ${index+1}`}`);setImage(button,item.image);if(item.vimeoUrl&&!imageUrl(item.image))button.classList.add("is-video");button.addEventListener("pointerenter",()=>selectArtwork(button,item));button.addEventListener("pointerleave",clearPreview);button.addEventListener("focus",()=>selectArtwork(button,item));button.addEventListener("blur",clearPreview);grid.append(button)});
-      clearPreview();
+      const touchLayout=matchMedia("(max-width:760px), (hover:none)").matches;
+      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${item.vimeoUrl?'video':`artwork ${index+1}`}`);setImage(button,item.image);if(item.vimeoUrl&&!imageUrl(item.image))button.classList.add("is-video");if(touchLayout)button.addEventListener("click",()=>selectArtwork(button,item));else{button.addEventListener("pointerenter",()=>selectArtwork(button,item));button.addEventListener("pointerleave",clearPreview);button.addEventListener("focus",()=>selectArtwork(button,item));button.addEventListener("blur",clearPreview)}grid.append(button)});
+      if(touchLayout&&project.galleryItems?.length)selectArtwork(grid.firstElementChild,project.galleryItems[0]);else clearPreview();
       syncUrl(project,key);
     };
     tabs.replaceChildren();
