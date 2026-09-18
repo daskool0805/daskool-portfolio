@@ -21,9 +21,9 @@ export const siteSettings=defineType({
     imageField('landingMotionImages','Landing — 8 hình motion',8),
     categoryImageGroup('landingCategoryImages','Landing — 3 hình cho mỗi danh mục',3),
     defineField({
-      name:'aboutHoverImages',title:'About — 50 hình hover',type:'array',
-      description:'Nhập hình theo thứ tự 1–50. Website xáo trộn và cố định mỗi hình vào một trong 50 vị trí trên desktop; tải lại trang không đổi vị trí.',
-      validation:Rule=>Rule.max(50).error('Tối đa 50 hình'),
+      name:'aboutHoverImages',title:'About — 100 hình hover',type:'array',
+      description:'Nhập tối đa 100 hình. Website xáo trộn và cố định mỗi hình vào một trong 100 vị trí; tải lại trang không đổi vị trí.',
+      validation:Rule=>Rule.max(100).error('Tối đa 100 hình'),
       of:[defineArrayMember({type:'object',fields:[
         defineField({name:'orientation',title:'Kiểu khung',type:'string',initialValue:'portrait',options:{layout:'radio',list:[{title:'Dọc',value:'portrait'},{title:'Ngang',value:'landscape'}]}}),
         defineField({name:'image',title:'Hình ảnh',type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]})
