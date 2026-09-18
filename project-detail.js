@@ -8,7 +8,7 @@
 
   const one=(tag,className)=>{const el=document.createElement(tag);if(className)el.className=className;return el};
   const imageUrl=(data,width)=>{const raw=data&&((data.url)||(data.asset&&data.asset.url)||data.src);if(!raw)return'';if(!raw.includes('cdn.sanity.io'))return raw;const join=raw.includes('?')?'&':'?';return `${raw}${join}auto=format&fit=max&w=${width}`};
-  const image=(data)=>{const img=one("img");img.src=imageUrl(data,1800);if((data&&data.url)||(data&&data.asset&&data.asset.url)){img.srcset=`${imageUrl(data,640)} 640w, ${imageUrl(data,1200)} 1200w, ${imageUrl(data,1800)} 1800w, ${imageUrl(data,2400)} 2400w`;img.sizes="100vw"}img.alt=data&&data.alt||"";img.loading="lazy";img.decoding="async";return img};
+  const image=(data)=>{const img=one("img");img.src=imageUrl(data,1800);if((data&&data.url)||(data&&data.asset&&data.asset.url)){img.srcset=`${imageUrl(data,640)} 640w, ${imageUrl(data,1200)} 1200w, ${imageUrl(data,1800)} 1800w, ${imageUrl(data,2400)} 2400w`;img.sizes="(max-width:760px) 100vw, 90vw"}img.alt=data&&data.alt||data&&data.caption||project.title.replace(/\n/g,' ');img.loading="lazy";img.decoding="async";return img};
   const caption=(text)=>{if(!text)return null;const el=one("figcaption","project-caption");el.textContent=text;return el};
   const paragraphs=(items,parent)=>{(items||[]).forEach(text=>{const p=one("p");p.textContent=text;parent.appendChild(p)})};
 
