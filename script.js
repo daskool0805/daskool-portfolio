@@ -344,8 +344,26 @@ if(cornerHorses.length){
 /* About: one hover target per grid slot, with the CMS images shuffled across slots. */
 const aboutHoverField=document.querySelector('.about-hover-field');
 if(aboutHoverField){
+  const aboutPage=document.querySelector('.about-body .about');
+  const aboutCopy=aboutPage?.querySelector('.about-copy');
+  if(aboutCopy){
+    const fitAboutCopy=()=>{
+      aboutCopy.style.width='100%';
+      aboutCopy.style.transform='none';
+      const style=getComputedStyle(aboutPage);
+      const available=aboutPage.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
+      let scale=Math.min(1,available/aboutCopy.scrollHeight);
+      aboutCopy.style.width=`${100/scale}%`;
+      scale=Math.min(1,available/aboutCopy.scrollHeight);
+      aboutCopy.style.width=`${100/scale}%`;
+      aboutCopy.style.transform=`scale(${scale})`;
+    };
+    fitAboutCopy();
+    document.fonts?.ready.then(fitAboutCopy);
+    addEventListener('resize',fitAboutCopy);
+  }
   const fragment=document.createDocumentFragment();
-  const imageOrder=Array.from({length:50},(_,index)=>index);
+  const imageOrder=Array.from({length:100},(_,index)=>index);
   let shuffleSeed=0xD45C0026;
   const fixedRandom=()=>{
     shuffleSeed=(shuffleSeed+0x6D2B79F5)>>>0;
@@ -358,7 +376,7 @@ if(aboutHoverField){
     const swap=Math.floor(fixedRandom()*(index+1));
     [imageOrder[index],imageOrder[swap]]=[imageOrder[swap],imageOrder[index]];
   }
-  for(let index=0;index<50;index++){
+  for(let index=0;index<imageOrder.length;index++){
     const cell=document.createElement('span');
     const frame=document.createElement('i');
     const portrait=index%3!==0;
@@ -465,7 +483,7 @@ if(galleryRoot){
   const selectArtwork=(button,index)=>{[...grid.children].forEach(item=>item.classList.toggle('is-active',item===button));preview.classList.remove('warm','cool','green');preview.classList.add(['green','cool','warm'][index%3])};
   const renderArtworks=project=>{
     grid.replaceChildren();
-    Array.from({length:12},(_,index)=>{const button=document.createElement('button');button.className='art-thumb';button.type='button';button.setAttribute('aria-label',`${project} artwork ${index+1}`);button.innerHTML=`<span>${String(index+1).padStart(2,'0')}</span>`;button.addEventListener('pointerenter',()=>selectArtwork(button,index));button.addEventListener('pointerleave',clearPreview);button.addEventListener('focus',()=>selectArtwork(button,index));button.addEventListener('blur',clearPreview);grid.append(button);return button});
+    Array.from({length:12},(_,index)=>{const button=document.createElement('button');button.className='art-thumb';button.type='button';button.setAttribute('aria-label',`${project} artwork ${index+1}`);button.addEventListener('pointerenter',()=>selectArtwork(button,index));button.addEventListener('pointerleave',clearPreview);button.addEventListener('focus',()=>selectArtwork(button,index));button.addEventListener('blur',clearPreview);grid.append(button);return button});
     clearPreview();
   };
   set.projects.forEach(([name,description],index)=>{const button=document.createElement('button');button.className=`showcase-project${index===0?' is-active':''}`;button.type='button';button.textContent=name;button.setAttribute('aria-selected',String(index===0));button.addEventListener('click',()=>{[...tabs.children].forEach(item=>{const active=item===button;item.classList.toggle('is-active',active);item.setAttribute('aria-selected',String(active))});copy.textContent=description;renderArtworks(name)});tabs.append(button)});
