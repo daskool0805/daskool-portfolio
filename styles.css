@@ -559,3 +559,10 @@ html:has(.about-body),.about-body{height:100%;overflow:hidden;overscroll-behavio
   .mobile-category-frames i:nth-child(4){animation-delay:-.5625s}
 }
 @media (prefers-reduced-motion:reduce){.mobile-category-frames i{opacity:0}.mobile-category-frames i:first-child{opacity:1}}
+
+/* About desktop: a calmer reading measure with the timeline aligned beneath it. */
+@media (min-width:761px){
+  .about-body .about{padding-top:clamp(76px,10vh,108px);padding-left:12vw;padding-right:8vw}
+  .about-body .about-copy .lead,.about-body .about-copy>p{width:min(56vw,760px);max-width:100%}
+  .about-body .timeline{width:min(76vw,980px);margin-top:clamp(30px,4.5vh,46px);gap:clamp(56px,8vw,130px)}
+}
