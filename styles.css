@@ -562,7 +562,7 @@ html:has(.about-body),.about-body{height:100%;overflow:hidden;overscroll-behavio
 
 /* About desktop: a calmer reading measure with the timeline aligned beneath it. */
 @media (min-width:761px){
-  .about-body .about{padding-top:clamp(76px,10vh,108px);padding-left:12vw;padding-right:8vw}
+  .about-body .about{display:flex;align-items:center;padding-top:clamp(132px,17vh,184px);padding-bottom:clamp(44px,6vh,68px);padding-left:12vw;padding-right:8vw}
   .about-body .about-copy .lead,.about-body .about-copy>p{width:min(56vw,760px);max-width:100%}
   .about-body .timeline{width:min(76vw,980px);margin-top:clamp(30px,4.5vh,46px);gap:clamp(56px,8vw,130px)}
 }
