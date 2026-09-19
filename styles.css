@@ -540,15 +540,19 @@ html:has(.about-body),.about-body{height:100%;overflow:hidden;overscroll-behavio
 /* Mobile refinements: preserve the desktop composition and brand green. */
 .mobile-category-frames{display:none}
 @media (max-width:760px){
-  .landing-body .step-hero{height:93svh;min-height:620px}
-  .landing-body .hero-bio{top:calc(100svh - 320px)}
-  .corner-brand{width:90px;height:50px}
-  .corner-horse{top:15px;left:-5px;font-size:1.12px;letter-spacing:.05em}
-  .work-page .category-dock{display:grid;gap:12px}
-  .work-page .category,.work-page .category:nth-child(n){display:grid;grid-template-columns:minmax(0,1fr) clamp(68px,21vw,88px);align-items:center;gap:12px;width:100%;min-height:72px;margin:0;padding:0;background:transparent;color:#111;overflow:visible;font-size:clamp(18px,5.3vw,23px);line-height:1.12}
+  .landing-body .step-hero{height:86svh;min-height:580px}
+  .landing-body .mock-frame{bottom:28vh}
+  .landing-body .hero-bio{top:calc(100svh - 300px)}
+  .landing-categories a,.landing-categories a:nth-child(n){grid-template-columns:auto minmax(0,1fr) clamp(70px,21vw,92px);grid-template-rows:auto;column-gap:10px;row-gap:0;min-height:clamp(100px,28vw,126px);padding-block:14px}
+  .landing-categories a>span:not(.category-thumbs){font-size:clamp(19px,5.7vw,25px);line-height:1.06}
+  .landing-categories .category-thumbs{grid-column:3;grid-row:1;align-self:center;justify-self:end;width:100%;max-width:92px}
+  .corner-brand{width:82px;height:44px}
+  .corner-horse{top:15px;left:0;font-size:.58px;line-height:.82;letter-spacing:.035em;transform:scaleX(1.04);transform-origin:left top}
+  .work-page .category-dock{display:block}
+  .work-page .category,.work-page .category:nth-child(n){display:block;width:100%;min-height:48px;margin:0 0 12px;padding:0;background:var(--green);color:#fff;overflow:hidden;font-size:clamp(21px,6.4vw,27px);line-height:1.12}
   .work-page .category:hover,.work-page .category:focus-visible{width:100%}
-  .work-page .category-label{display:flex;align-items:center;min-height:60px;padding:9px 11px;background:var(--green);overflow-wrap:anywhere}
-  .mobile-category-frames{position:relative;display:block;width:100%;aspect-ratio:1;overflow:hidden;background:#d5d5d0}
+  .work-page .category-label{display:flex;align-items:center;min-height:48px;padding:9px 12px;background:transparent;overflow-wrap:anywhere}
+  .mobile-category-frames{display:none!important}
   .mobile-category-frames i{position:absolute;inset:0;display:block;background:#d5d5d0;background-position:center;background-size:cover;border:1px solid var(--green);opacity:0;animation:category-placeholder-cycle .75s steps(1,end) infinite both}
   .mobile-category-frames i:nth-child(2){animation-delay:-.1875s}
   .mobile-category-frames i:nth-child(3){animation-delay:-.375s}
