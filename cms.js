@@ -52,7 +52,7 @@
     const video=vimeoEmbed(item.vimeoUrl);
     if(video){
       const iframe=document.createElement("iframe");
-      iframe.src=video+(autoplay?`${video.includes("?")?"&":"?"}autoplay=1&muted=1&loop=1`:"");iframe.title=item.caption||item.label||"Vimeo video";
+      iframe.src=video+(autoplay?`${video.includes("?")?"&":"?"}autoplay=1&muted=1&loop=1&autopause=0&playsinline=1`:"");iframe.title=item.caption||item.label||"Vimeo video";
       iframe.loading="lazy";iframe.allow="autoplay; fullscreen; picture-in-picture";iframe.allowFullscreen=true;
       iframe.className="showcase-video";
       const ratio=/^(?:16\/9|9\/16|1\/1|4\/3)$/.test(item.videoAspectRatio||"")?item.videoAspectRatio:"16/9";
@@ -147,7 +147,7 @@
       copy.textContent=project.description||"";
       canvas.replaceChildren();
       (project.brandingItems||[]).forEach((item,index)=>{
-        const media=mediaNode(item);
+        const media=mediaNode(item,true);
         if(!media)return;
         const frame=document.createElement("div");frame.className="brand-frame";
         if(item.layout==="square"&&!item.vimeoUrl)frame.classList.add("is-square");
