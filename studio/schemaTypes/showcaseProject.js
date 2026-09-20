@@ -1,7 +1,9 @@
 import {defineArrayMember,defineField,defineType} from 'sanity'
 
 const artwork=(name,title,template)=>defineField({
-  name,title,type:'array',hidden:({parent})=>parent?.template!==template,of:[defineArrayMember({type:'object',validation:Rule=>Rule.custom(item=>item?.image?.asset||item?.vimeoUrl?true:'Chọn hình ảnh hoặc nhập URL Vimeo.'),fields:[
+  name,title,type:'array',hidden:({parent})=>parent?.template!==template,description:template==='gallery'?'Có thể chọn và upload nhiều hình cùng lúc. Dùng “Gallery item / Vimeo” khi cần thêm video hoặc chú thích riêng.':undefined,options:template==='gallery'?{layout:'grid'}:undefined,of:[
+  ...(template==='gallery'?[defineArrayMember({type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]})]:[]),
+  defineArrayMember({name:`${template}ArtworkItem`,title:template==='gallery'?'Gallery item / Vimeo':'Artwork',type:'object',validation:Rule=>Rule.custom(item=>item?.image?.asset||item?.vimeoUrl?true:'Chọn hình ảnh hoặc nhập URL Vimeo.'),fields:[
     defineField({name:'image',title:'Hình ảnh (hoặc thumbnail cho video)',type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]}),
     defineField({name:'vimeoUrl',title:'URL video Vimeo',type:'url',description:'Ví dụ: https://vimeo.com/123456789. Nếu có cả hình, hình sẽ làm thumbnail trong gallery.',validation:Rule=>Rule.uri({scheme:['https']}).custom(value=>!value||/^https:\/\/(?:www\.)?(?:vimeo\.com|player\.vimeo\.com)\//i.test(value)||'Chỉ dùng URL từ Vimeo.')}),
     defineField({name:'videoAspectRatio',title:'Tỉ lệ video',type:'string',initialValue:'16/9',options:{list:[{title:'Ngang 16:9',value:'16/9'},{title:'Vuông 1:1',value:'1/1'},{title:'Dọc 9:16',value:'9/16'},{title:'Ngang 4:3',value:'4/3'}]}}),
