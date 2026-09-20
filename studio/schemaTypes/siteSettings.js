@@ -1,4 +1,7 @@
 import {defineArrayMember,defineField,defineType} from 'sanity'
+import {createBulkImageArrayInput} from '../components/BulkImageArrayInput.jsx'
+
+const aboutBulkImageInput=createBulkImageArrayInput(100)
 
 const imageField=(name,title,count)=>defineField({
   name,title,type:'array',
@@ -25,6 +28,7 @@ export const siteSettings=defineType({
       description:'Có thể chọn và upload nhiều hình cùng lúc, tối đa 100 hình. Website xáo trộn và cố định mỗi hình vào một trong 100 vị trí.',
       validation:Rule=>Rule.max(100).error('Tối đa 100 hình'),
       options:{layout:'grid'},
+      components:{input:aboutBulkImageInput},
       of:[
         defineArrayMember({type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]}),
         defineArrayMember({name:'legacyAboutHoverImage',title:'Hình hover cũ',type:'object',fields:[
