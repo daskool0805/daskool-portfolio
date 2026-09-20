@@ -48,16 +48,33 @@
       return `https://player.vimeo.com/video/${id}${hash?`?h=${encodeURIComponent(hash)}`:""}`;
     }catch{return ""}
   };
-  const mediaNode=(item,autoplay=false,defaultVideoRatio="16/9",forceVideoRatio=false)=>{
+  const mediaNode=(item,autoplay=false)=>{
     const video=vimeoEmbed(item.vimeoUrl);
     if(video){
       const iframe=document.createElement("iframe");
       iframe.src=video+(autoplay?`${video.includes("?")?"&":"?"}autoplay=1&muted=1&loop=1&autopause=0&playsinline=1`:"");iframe.title=item.caption||item.label||"Vimeo video";
       iframe.loading="lazy";iframe.allow="autoplay; fullscreen; picture-in-picture";iframe.allowFullscreen=true;
       iframe.className="showcase-video";
-      const ratio=forceVideoRatio?defaultVideoRatio:/^(?:16\/9|9\/16|1\/1|4\/3)$/.test(item.videoAspectRatio||"")?item.videoAspectRatio:defaultVideoRatio;
+      const ratio=/^(?:16\/9|9\/16|1\/1|4\/3)$/.test(item.videoAspectRatio||"")?item.videoAspectRatio:"16/9";
       iframe.style.aspectRatio=ratio;
       iframe.style.setProperty("--media-ratio",String(ratio.split("/").map(Number).reduce((width,height)=>width/height)));
+      const natural={width:0,height:0};
+      const receiveDimension=event=>{
+        if(event.origin!=="https://player.vimeo.com"||event.source!==iframe.contentWindow)return;
+        let data=event.data;
+        if(typeof data==="string")try{data=JSON.parse(data)}catch{return}
+        if(data?.method==="getVideoWidth")natural.width=Number(data.value)||0;
+        if(data?.method==="getVideoHeight")natural.height=Number(data.value)||0;
+        if(!natural.width||!natural.height)return;
+        iframe.style.aspectRatio=`${natural.width} / ${natural.height}`;
+        iframe.style.setProperty("--media-ratio",String(natural.width/natural.height));
+        removeEventListener("message",receiveDimension);
+      };
+      addEventListener("message",receiveDimension);
+      iframe.addEventListener("load",()=>{
+        const request=()=>["getVideoWidth","getVideoHeight"].forEach(method=>iframe.contentWindow?.postMessage(JSON.stringify({method}),"https://player.vimeo.com"));
+        request();setTimeout(request,500);
+      },{once:true});
       return iframe;
     }
     const url=imageUrl(item.image||item);
@@ -147,7 +164,7 @@
       copy.textContent=project.description||"";
       canvas.replaceChildren();
       (project.brandingItems||[]).forEach((item,index)=>{
-        const media=mediaNode(item,true,"4/3",true);
+        const media=mediaNode(item,true);
         if(!media)return;
         const frame=document.createElement("div");frame.className="brand-frame";
         if(item.layout==="square"&&!item.vimeoUrl)frame.classList.add("is-square");
