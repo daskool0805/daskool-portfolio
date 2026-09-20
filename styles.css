@@ -378,6 +378,7 @@
 .branding-showcase .brand-frame img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}
 .branding-showcase .brand-frame.is-square img{width:auto;max-width:100%;max-height:100%;height:auto}
 .showcase-video{display:block;width:100%;height:auto;max-width:100%;border:0}
+.branding-showcase .brand-frame .showcase-video{display:block;width:100%;max-width:none;height:auto;margin:0;border:0}
 .gallery-stage{height:calc(100vh - 170px);min-height:0;overflow:hidden}
 .gallery-preview{height:100%;min-height:0;border:0;background:transparent!important;display:grid;place-items:center;overflow:hidden}
 .gallery-preview img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
