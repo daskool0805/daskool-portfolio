@@ -184,12 +184,12 @@
     const projects=categoryProjects(key).filter(project=>project.template==="gallery");
     if(!projects.length)return;
     const labels={social:"creative social design",motion:"video & motion",photo:"photography"};
-    const title=root.querySelector("[data-gallery-category]"),tabs=root.querySelector("[data-gallery-projects]"),copy=root.querySelector("[data-gallery-copy]"),grid=root.querySelector("[data-art-grid]"),mediaLayer=root.querySelector("[data-gallery-media]");
+    const title=root.querySelector("[data-gallery-category]"),tabs=root.querySelector("[data-gallery-projects]"),copy=root.querySelector("[data-gallery-copy]"),grid=root.querySelector("[data-art-grid]"),preview=root.querySelector("[data-gallery-preview]"),mediaLayer=root.querySelector("[data-gallery-media]");
     title.textContent=labels[key]||key;
-    const clearPreview=()=>{[...grid.children].forEach(node=>node.classList.remove("is-active"));mediaLayer.replaceChildren()};
+    const clearPreview=()=>{[...grid.children].forEach(node=>node.classList.remove("is-active"));mediaLayer.replaceChildren();preview.classList.remove("is-showing-media")};
     const selectArtwork=(button,item)=>{
       [...grid.children].forEach(node=>node.classList.toggle("is-active",node===button));
-      const media=mediaNode(item,true);mediaLayer.replaceChildren(...(media?[media]:[]));
+      const media=mediaNode(item,true);mediaLayer.replaceChildren(...(media?[media]:[]));preview.classList.toggle("is-showing-media",Boolean(media));
     };
     const activate=project=>{
       [...tabs.children].forEach(button=>{const active=button.dataset.slug===project.slug;button.classList.toggle("is-active",active);button.setAttribute("aria-selected",String(active))});
