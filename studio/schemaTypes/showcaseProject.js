@@ -1,7 +1,10 @@
 import {defineArrayMember,defineField,defineType} from 'sanity'
+import {createBulkImageArrayInput} from '../components/BulkImageArrayInput.jsx'
+
+const galleryBulkImageInput=createBulkImageArrayInput()
 
 const artwork=(name,title,template)=>defineField({
-  name,title,type:'array',hidden:({parent})=>parent?.template!==template,description:template==='gallery'?'Có thể chọn và upload nhiều hình cùng lúc. Dùng “Gallery item / Vimeo” khi cần thêm video hoặc chú thích riêng.':undefined,options:template==='gallery'?{layout:'grid'}:undefined,of:[
+  name,title,type:'array',hidden:({parent})=>parent?.template!==template,description:template==='gallery'?'Có thể chọn và upload nhiều hình cùng lúc. Dùng “Gallery item / Vimeo” khi cần thêm video hoặc chú thích riêng.':undefined,options:template==='gallery'?{layout:'grid'}:undefined,components:template==='gallery'?{input:galleryBulkImageInput}:undefined,of:[
   ...(template==='gallery'?[defineArrayMember({type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]})]:[]),
   defineArrayMember({name:`${template}ArtworkItem`,title:template==='gallery'?'Gallery item / Vimeo':'Artwork',type:'object',validation:Rule=>Rule.custom(item=>item?.image?.asset||item?.vimeoUrl?true:'Chọn hình ảnh hoặc nhập URL Vimeo.'),fields:[
     defineField({name:'image',title:'Hình ảnh (hoặc thumbnail cho video)',type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]}),
