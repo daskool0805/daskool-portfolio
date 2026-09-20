@@ -443,8 +443,8 @@ if(galleryRoot){
   const params=new URLSearchParams(location.search),key=sets[params.get('category')]?params.get('category'):'social',set=sets[key];
   const title=document.querySelector('[data-gallery-category]'),tabs=document.querySelector('[data-gallery-projects]'),copy=document.querySelector('[data-gallery-copy]'),grid=document.querySelector('[data-art-grid]'),preview=document.querySelector('[data-gallery-preview]');
   document.title=`${set.title} — Daskool`;title.textContent=set.title;
-  const clearPreview=()=>{[...grid.children].forEach(item=>item.classList.remove('is-active'));preview.classList.remove('warm','cool','green')};
-  const selectArtwork=(button,index)=>{[...grid.children].forEach(item=>item.classList.toggle('is-active',item===button));preview.classList.remove('warm','cool','green');preview.classList.add(['green','cool','warm'][index%3])};
+  const clearPreview=()=>{[...grid.children].forEach(item=>item.classList.remove('is-active'));preview.classList.remove('warm','cool','green','is-showing-media')};
+  const selectArtwork=(button,index)=>{[...grid.children].forEach(item=>item.classList.toggle('is-active',item===button));preview.classList.remove('warm','cool','green');preview.classList.add(['green','cool','warm'][index%3],'is-showing-media')};
   const renderArtworks=project=>{
     grid.replaceChildren();
     const touchLayout=matchMedia('(max-width:760px), (hover:none)').matches;
