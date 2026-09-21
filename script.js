@@ -29,6 +29,8 @@ const cats=[...document.querySelectorAll('.category')],categoryArtStack=document
 if(cats.length){
   const shuffle=list=>list.map(value=>({value,sort:Math.random()})).sort((a,b)=>a.sort-b.sort).map(item=>item.value);
   const set=c=>{
+    cats.forEach(category=>category.classList.toggle('is-selected',category===c));
+    document.body.classList.add('has-category-focus');
     document.querySelectorAll('.project-name').forEach(p=>p.classList.toggle('highlight',(p.dataset.categories||'').split(/\s+/).includes(c.dataset.category)));
     if(categoryArtStack){
       window.DASKOOL_CMS?.applyWorkCategory(c.dataset.category,categoryArtStack.children);
@@ -40,7 +42,10 @@ if(cats.length){
     }
   };
   cats.forEach(c=>{c.addEventListener('mouseenter',()=>set(c));c.addEventListener('focus',()=>set(c))});
-  document.querySelector('.category-dock')?.addEventListener('mouseleave',()=>{document.querySelectorAll('.project-name').forEach(p=>p.classList.remove('highlight'));categoryArtStack?.classList.remove('is-active')});
+  const clearCategory=()=>{cats.forEach(category=>category.classList.remove('is-selected'));document.body.classList.remove('has-category-focus');document.querySelectorAll('.project-name').forEach(p=>p.classList.remove('highlight'));categoryArtStack?.classList.remove('is-active')};
+  const categoryDock=document.querySelector('.category-dock');
+  categoryDock?.addEventListener('mouseleave',clearCategory);
+  categoryDock?.addEventListener('focusout',event=>{if(!categoryDock.contains(event.relatedTarget))clearCategory()});
   document.addEventListener('daskool:cms-ready',()=>{
     if(categoryArtStack?.dataset.category)window.DASKOOL_CMS?.applyWorkCategory(categoryArtStack.dataset.category,categoryArtStack.children);
   });
