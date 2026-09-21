@@ -5,8 +5,8 @@ const galleryBulkImageInput=createBulkImageArrayInput()
 
 const artworkObject=(name,title,template)=>defineArrayMember({name,title,type:'object',validation:Rule=>Rule.custom(item=>item?.image?.asset||item?.vimeoUrl?true:'Chọn hình ảnh hoặc nhập URL Vimeo.'),fields:[
   defineField({name:'image',title:'Hình ảnh (hoặc thumbnail cho video)',type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]}),
-  defineField({name:'vimeoUrl',title:'URL video Vimeo',type:'url',description:'Ví dụ: https://vimeo.com/123456789. Nếu có cả hình, hình sẽ làm thumbnail trong gallery.',validation:Rule=>Rule.uri({scheme:['https']}).custom(value=>!value||/^https:\/\/(?:www\.)?(?:vimeo\.com|player\.vimeo\.com)\//i.test(value)||'Chỉ dùng URL từ Vimeo.')}),
-  defineField({name:'videoAspectRatio',title:'Tỉ lệ video',type:'string',initialValue:'16/9',options:{list:[{title:'Ngang 16:9',value:'16/9'},{title:'Vuông 1:1',value:'1/1'},{title:'Dọc 9:16',value:'9/16'},{title:'Ngang 4:3',value:'4/3'}]}}),
+  defineField({name:'vimeoUrl',title:'URL video Vimeo — tự phát & loop',type:'url',description:'Dán link Vimeo. Video sẽ tự phát, tắt tiếng, lặp lại và scale fit trong khung preview. Nếu có cả hình, hình sẽ làm thumbnail trong gallery.',validation:Rule=>Rule.uri({scheme:['https']}).custom(value=>!value||/^https:\/\/(?:www\.)?(?:vimeo\.com|player\.vimeo\.com)\//i.test(value)||'Chỉ dùng URL từ Vimeo.')}),
+  defineField({name:'videoAspectRatio',title:'Tỉ lệ dự phòng',type:'string',description:'Chỉ dùng trong lúc chờ Vimeo trả về kích thước thật.',initialValue:'16/9',options:{list:[{title:'Ngang 16:9',value:'16/9'},{title:'Vuông 1:1',value:'1/1'},{title:'Dọc 9:16',value:'9/16'},{title:'Ngang 4:3',value:'4/3'}]}}),
   ...(template==='branding'?[defineField({name:'layout',title:'Bố cục hình',type:'string',initialValue:'full',options:{layout:'radio',list:[{title:'Rộng cả hàng',value:'full'},{title:'Vuông nửa hàng',value:'square'}]}})]:[]),
   defineField({name:'label',title:'Nhãn hiển thị',type:'string'}),
   defineField({name:'caption',title:'Chú thích',type:'string'})
