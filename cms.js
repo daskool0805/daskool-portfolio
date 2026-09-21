@@ -68,6 +68,7 @@
         if(!natural.width||!natural.height)return;
         iframe.style.aspectRatio=`${natural.width} / ${natural.height}`;
         iframe.style.setProperty("--media-ratio",String(natural.width/natural.height));
+        iframe.dispatchEvent(new CustomEvent("mediaratiochange"));
         removeEventListener("message",receiveDimension);
       };
       addEventListener("message",receiveDimension);
@@ -82,6 +83,27 @@
     const img=document.createElement("img");img.src=sizedImage(url,1200);img.alt=imageAlt(item.image||item)||item.caption||item.label||"";img.decoding="async";img.loading="lazy";
     if(url.includes("cdn.sanity.io")){img.srcset=`${sizedImage(url,640)} 640w, ${sizedImage(url,1200)} 1200w, ${sizedImage(url,1800)} 1800w`;img.sizes="(max-width:760px) 100vw, 66vw"}
     return img;
+  };
+  const fitVimeoPreview=(iframe,container)=>{
+    if(!iframe?.classList.contains("showcase-video")||!container)return;
+    const fit=()=>{
+      const bounds=container.getBoundingClientRect();
+      const ratio=Number.parseFloat(iframe.style.getPropertyValue("--media-ratio"))||16/9;
+      if(!bounds.width||!bounds.height)return;
+      if(bounds.width/bounds.height>ratio){
+        iframe.style.width=`${bounds.height*ratio}px`;
+        iframe.style.height=`${bounds.height}px`;
+      }else{
+        iframe.style.width=`${bounds.width}px`;
+        iframe.style.height=`${bounds.width/ratio}px`;
+      }
+    };
+    fit();
+    iframe.addEventListener("mediaratiochange",fit);
+    if("ResizeObserver" in window){
+      const observer=new ResizeObserver(fit);observer.observe(container);iframe._fitObserver=observer;
+      iframe.addEventListener("load",()=>fit(),{once:true});
+    }else addEventListener("resize",fit,{passive:true});
   };
   const uniqueProjects=projects=>{
     const map=new Map();
@@ -186,10 +208,10 @@
     const labels={social:"creative social design",motion:"video & motion",photo:"photography"};
     const title=root.querySelector("[data-gallery-category]"),tabs=root.querySelector("[data-gallery-projects]"),copy=root.querySelector("[data-gallery-copy]"),grid=root.querySelector("[data-art-grid]"),preview=root.querySelector("[data-gallery-preview]"),mediaLayer=root.querySelector("[data-gallery-media]");
     title.textContent=labels[key]||key;
-    const clearPreview=()=>{[...grid.children].forEach(node=>node.classList.remove("is-active"));mediaLayer.replaceChildren();preview.classList.remove("is-showing-media")};
+    const clearPreview=()=>{[...grid.children].forEach(node=>node.classList.remove("is-active"));mediaLayer.querySelector(".showcase-video")?._fitObserver?.disconnect();mediaLayer.replaceChildren();preview.classList.remove("is-showing-media")};
     const selectArtwork=(button,item)=>{
       [...grid.children].forEach(node=>node.classList.toggle("is-active",node===button));
-      const media=mediaNode(item,true);mediaLayer.replaceChildren(...(media?[media]:[]));preview.classList.toggle("is-showing-media",Boolean(media));
+      const media=mediaNode(item,true);mediaLayer.querySelector(".showcase-video")?._fitObserver?.disconnect();mediaLayer.replaceChildren(...(media?[media]:[]));if(media)fitVimeoPreview(media,mediaLayer);preview.classList.toggle("is-showing-media",Boolean(media));
     };
     const activate=project=>{
       [...tabs.children].forEach(button=>{const active=button.dataset.slug===project.slug;button.classList.toggle("is-active",active);button.setAttribute("aria-selected",String(active))});
