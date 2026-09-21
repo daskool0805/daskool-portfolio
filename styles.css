@@ -363,8 +363,8 @@
 .work-page .work-display .placeholder-frame:before,.work-page .work-display .placeholder-frame:after{display:none}
 .work-page .work-display .project-stage{width:100%;min-height:0;padding:0;display:flex;justify-content:flex-end;align-self:auto}
 .work-page .work-display .project-list{display:block;width:100%;max-width:100%;direction:ltr;text-align:right;line-height:1.01}
-.work-page .work-display .project-name{display:inline;direction:ltr;white-space:normal}
-@media(max-width:760px){.work-page .work-display{min-height:0;display:block}.work-page .work-display .project-stage{padding:42px 0 12px}.work-page .work-display .project-list{display:block;width:100%;max-width:100%;text-align:right}.work-page .work-display .project-name{display:block;text-align:right;white-space:normal}}
+.work-page .work-display .project-name{display:inline-block;direction:ltr;white-space:nowrap}
+@media(max-width:760px){.work-page .work-display{min-height:0;display:block}.work-page .work-display .project-stage{padding:42px 0 12px}.work-page .work-display .project-list{display:block;width:100%;max-width:100%;text-align:right}.work-page .work-display .project-name{display:block;max-width:100%;text-align:right;white-space:nowrap}}
 
 /* Showcase media: natural image ratios and Vimeo embeds within each template. */
 .showcase-kicker{text-transform:none;letter-spacing:.02em}
@@ -483,7 +483,7 @@ html:has(.about-body),.about-body{height:100%;overflow:hidden;overscroll-behavio
   .work-page .category:hover,.work-page .category:focus-visible{width:100%}
   .work-page .work-display .project-stage{padding:40px 0 12px}
   .work-page .work-display .project-list{width:100%;max-width:100%;direction:ltr;text-align:left}
-  .work-page .work-display .project-name{font-size:clamp(25px,7.7vw,34px);line-height:1.06;text-align:left;white-space:normal;color:#555}
+  .work-page .work-display .project-name{font-size:clamp(22px,7.2vw,34px);line-height:1.06;text-align:left;white-space:nowrap;color:#555}
   .work-page .work-display .project-name.highlight{color:#111}
   .work-contact{display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:26px;min-height:320px;height:auto;padding:38px 20px 32px;overflow:hidden}
   .work-contact .hello-lock,.work-contact .social-links{position:relative;left:auto;right:auto;top:auto;bottom:auto;margin:0}
