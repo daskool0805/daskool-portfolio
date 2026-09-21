@@ -31,7 +31,11 @@ export const siteSettings=defineType({
       components:{input:aboutBulkImageInput},
       of:[
         defineArrayMember({type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]}),
-        defineArrayMember({name:'aboutHoverImage',title:'Hình hover cũ',type:'object',fields:[
+        defineArrayMember({name:'object',title:'Hình hover cũ',type:'object',fields:[
+        defineField({name:'orientation',title:'Kiểu khung',type:'string',initialValue:'portrait',options:{layout:'radio',list:[{title:'Dọc',value:'portrait'},{title:'Ngang',value:'landscape'}]}}),
+        defineField({name:'image',title:'Hình ảnh',type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]})
+      ],preview:{select:{media:'image',orientation:'orientation'},prepare:({media,orientation})=>({title:orientation==='landscape'?'Hình ngang cũ':'Hình dọc cũ',media})}}),
+        defineArrayMember({name:'legacyAboutHoverImage',title:'Hình hover cũ (đã chuyển đổi)',type:'object',fields:[
         defineField({name:'orientation',title:'Kiểu khung',type:'string',initialValue:'portrait',options:{layout:'radio',list:[{title:'Dọc',value:'portrait'},{title:'Ngang',value:'landscape'}]}}),
         defineField({name:'image',title:'Hình ảnh',type:'image',options:{hotspot:true},fields:[defineField({name:'alt',title:'Mô tả hình',type:'string'})]})
       ],preview:{select:{media:'image',orientation:'orientation'},prepare:({media,orientation})=>({title:orientation==='landscape'?'Hình ngang cũ':'Hình dọc cũ',media})}})
