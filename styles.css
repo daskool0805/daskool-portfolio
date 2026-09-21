@@ -542,11 +542,10 @@ html:has(.about-body),.about-body{height:100%;overflow:hidden;overscroll-behavio
 
 /* Work category focus and quieter global navigation. */
 .nav,.about-nav{font-size:16px}
-.work-body:before{content:"";position:fixed;z-index:0;inset:0;background:rgba(18,255,0,.14);opacity:0;pointer-events:none;transition:opacity .35s ease}
-.work-body.has-category-focus:before{opacity:1}
 .work-page .category{transition:width .48s cubic-bezier(.2,.8,.2,1),color .3s ease,background-color .3s ease,opacity .3s ease}
 .work-body.has-category-focus .category:not(.is-selected){background:rgba(9,196,0,.1);color:rgba(17,17,17,.28)}
 .work-body.has-category-focus .category.is-selected{background:var(--green);color:#fff}
+.work-body .project-name.highlight{color:var(--green)}
 @media(max-width:760px){.nav,.about-nav{font-size:14px}}
 
 /* Mobile refinements: preserve the desktop composition and brand green. */
