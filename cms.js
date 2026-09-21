@@ -48,16 +48,24 @@
       return `https://player.vimeo.com/video/${id}${hash?`?h=${encodeURIComponent(hash)}`:""}`;
     }catch{return ""}
   };
-  const mediaNode=(item,autoplay=false)=>{
+  const vimeoRatioCache=new Map();
+  const loadVimeoRatio=value=>{
+    if(!value)return Promise.resolve(0);
+    if(!vimeoRatioCache.has(value))vimeoRatioCache.set(value,fetch(`/api/vimeo?url=${encodeURIComponent(value)}`).then(response=>response.ok?response.json():null).then(data=>Number(data?.ratio)||0).catch(()=>0));
+    return vimeoRatioCache.get(value);
+  };
+  const mediaNode=(item,autoplay=false,sound=false)=>{
     const video=vimeoEmbed(item.vimeoUrl);
     if(video){
       const iframe=document.createElement("iframe");
-      iframe.src=video+(autoplay?`${video.includes("?")?"&":"?"}autoplay=1&muted=1&loop=1&autopause=0&playsinline=1`:"");iframe.title=item.caption||item.label||"Vimeo video";
+      iframe.src=video+(autoplay?`${video.includes("?")?"&":"?"}autoplay=1&muted=${sound?0:1}&loop=1&autopause=0&playsinline=1`:"");iframe.title=item.caption||item.label||"Vimeo video";
       iframe.loading="lazy";iframe.allow="autoplay; fullscreen; picture-in-picture";iframe.allowFullscreen=true;
       iframe.className="showcase-video";
-      const ratio=/^(?:16\/9|9\/16|1\/1|4\/3)$/.test(item.videoAspectRatio||"")?item.videoAspectRatio:"16/9";
-      iframe.style.aspectRatio=ratio;
-      iframe.style.setProperty("--media-ratio",String(ratio.split("/").map(Number).reduce((width,height)=>width/height)));
+      const fallback=/^(?:16\/9|9\/16|1\/1|4\/3)$/.test(item.videoAspectRatio||"")?item.videoAspectRatio:"16/9";
+      const fallbackRatio=fallback.split("/").map(Number).reduce((width,height)=>width/height);
+      const ratio=Number(item._vimeoRatio)||fallbackRatio;
+      iframe.style.aspectRatio=String(ratio);
+      iframe.style.setProperty("--media-ratio",String(ratio));
       const natural={width:0,height:0};
       const receiveDimension=event=>{
         if(event.origin!=="https://player.vimeo.com"||event.source!==iframe.contentWindow)return;
@@ -211,13 +219,15 @@
     const clearPreview=()=>{[...grid.children].forEach(node=>node.classList.remove("is-active"));mediaLayer.querySelector(".showcase-video")?._fitObserver?.disconnect();mediaLayer.replaceChildren();preview.classList.remove("is-showing-media")};
     const selectArtwork=(button,item)=>{
       [...grid.children].forEach(node=>node.classList.toggle("is-active",node===button));
-      const media=mediaNode(item,true);mediaLayer.querySelector(".showcase-video")?._fitObserver?.disconnect();mediaLayer.replaceChildren(...(media?[media]:[]));if(media)fitVimeoPreview(media,mediaLayer);preview.classList.toggle("is-showing-media",Boolean(media));
+      const media=mediaNode(item,true,key==="motion");mediaLayer.querySelector(".showcase-video")?._fitObserver?.disconnect();mediaLayer.replaceChildren(...(media?[media]:[]));if(media)fitVimeoPreview(media,mediaLayer);preview.classList.toggle("is-showing-media",Boolean(media));
+      if(media?.classList.contains("showcase-video")&&!item._vimeoRatio)loadVimeoRatio(item.vimeoUrl).then(ratio=>{if(!ratio||!media.isConnected)return;item._vimeoRatio=ratio;media.style.aspectRatio=String(ratio);media.style.setProperty("--media-ratio",String(ratio));media.dispatchEvent(new CustomEvent("mediaratiochange"))});
     };
     const activate=project=>{
       [...tabs.children].forEach(button=>{const active=button.dataset.slug===project.slug;button.classList.toggle("is-active",active);button.setAttribute("aria-selected",String(active))});
       copy.textContent=project.description||"";grid.replaceChildren();
+      (project.galleryItems||[]).forEach(item=>{if(item.vimeoUrl&&!item._vimeoRatio)loadVimeoRatio(item.vimeoUrl).then(ratio=>{if(ratio)item._vimeoRatio=ratio})});
       const touchLayout=matchMedia("(max-width:760px), (hover:none)").matches;
-      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${item.vimeoUrl?'video':`artwork ${index+1}`}`);setImage(button,item.image||item);if(item.vimeoUrl&&!imageUrl(item.image||item))button.classList.add("is-video");if(touchLayout)button.addEventListener("click",()=>selectArtwork(button,item));else{button.addEventListener("pointerenter",()=>selectArtwork(button,item));button.addEventListener("pointerleave",clearPreview);button.addEventListener("focus",()=>selectArtwork(button,item));button.addEventListener("blur",clearPreview)}grid.append(button)});
+      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${item.vimeoUrl?'video':`artwork ${index+1}`}`);setImage(button,item.image||item);if(item.vimeoUrl&&!imageUrl(item.image||item))button.classList.add("is-video");if(touchLayout||item.vimeoUrl)button.addEventListener("click",()=>selectArtwork(button,item));else{button.addEventListener("pointerenter",()=>selectArtwork(button,item));button.addEventListener("pointerleave",clearPreview);button.addEventListener("focus",()=>selectArtwork(button,item));button.addEventListener("blur",clearPreview)}grid.append(button)});
       if(touchLayout&&project.galleryItems?.length)selectArtwork(grid.firstElementChild,project.galleryItems[0]);else clearPreview();
       syncUrl(project,key);
     };
