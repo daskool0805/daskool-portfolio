@@ -540,6 +540,16 @@ html:has(.about-body),.about-body{height:100%;overflow:hidden;overscroll-behavio
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
 
+/* Work category focus and quieter global navigation. */
+.nav{font-size:clamp(18px,1.35vw,20px)}
+.about-nav{font-size:clamp(15px,1.35vw,20px)}
+.work-body:before{content:"";position:fixed;z-index:0;inset:0;background:rgba(9,196,0,.065);opacity:0;pointer-events:none;transition:opacity .35s ease}
+.work-body.has-category-focus:before{opacity:1}
+.work-page .category{transition:width .48s cubic-bezier(.2,.8,.2,1),color .3s ease,background-color .3s ease,opacity .3s ease}
+.work-body.has-category-focus .category:not(.is-selected){background:rgba(9,196,0,.16);color:rgba(17,17,17,.34)}
+.work-body.has-category-focus .category.is-selected{background:var(--green);color:#fff}
+@media(max-width:760px){.nav,.about-nav{font-size:15px}}
+
 /* Mobile refinements: preserve the desktop composition and brand green. */
 .mobile-category-frames{display:none}
 @media (max-width:760px){
