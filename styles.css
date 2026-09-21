@@ -362,9 +362,9 @@
 .work-page .work-display .placeholder-frame{border:0}
 .work-page .work-display .placeholder-frame:before,.work-page .work-display .placeholder-frame:after{display:none}
 .work-page .work-display .project-stage{width:100%;min-height:0;padding:0;display:flex;justify-content:flex-end;align-self:auto}
-.work-page .work-display .project-list{display:grid;grid-template-rows:repeat(var(--project-rows,6),max-content);grid-auto-flow:column;grid-auto-columns:max-content;column-gap:clamp(16px,2vw,32px);width:max-content;max-width:calc(100vw - 11vw);direction:rtl;text-align:right}
-.work-page .work-display .project-name{direction:ltr;white-space:nowrap}
-@media(max-width:760px){.work-page .work-display{min-height:0;display:block}.work-page .work-display .project-stage{padding:42px 0 12px}.work-page .work-display .project-list{display:block;width:100%;max-width:100%;text-align:right}.work-page .work-display .project-name{text-align:right;white-space:normal}}
+.work-page .work-display .project-list{display:block;width:100%;max-width:100%;direction:ltr;text-align:right;line-height:1.01}
+.work-page .work-display .project-name{display:inline;direction:ltr;white-space:normal}
+@media(max-width:760px){.work-page .work-display{min-height:0;display:block}.work-page .work-display .project-stage{padding:42px 0 12px}.work-page .work-display .project-list{display:block;width:100%;max-width:100%;text-align:right}.work-page .work-display .project-name{display:block;text-align:right;white-space:normal}}
 
 /* Showcase media: natural image ratios and Vimeo embeds within each template. */
 .showcase-kicker{text-transform:none;letter-spacing:.02em}
