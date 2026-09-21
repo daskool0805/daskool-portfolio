@@ -137,7 +137,7 @@
       const name=document.createElement("span");
       name.className="project-name";
       name.dataset.categories=[...entry.categories].join(" ");
-      name.textContent=entry.title+(index<entries.length-1?",":"");
+      name.textContent=entry.title+(index<entries.length-1?", ":"");
       list.append(name);
     });
     window.dispatchEvent(new Event("workprojectschange"));
