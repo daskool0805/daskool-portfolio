@@ -5,7 +5,7 @@
   const clean=value=>(value||"").trim();
   const imageUrl=value=>value&&typeof value==="object"?(value.asset&&value.asset.url)||value.url||"":value||"";
   const imageAlt=value=>value&&typeof value==="object"?value.alt||"":"";
-  const sizedImage=(url,width)=>url.includes("cdn.sanity.io")?`${url}${url.includes("?")?"&":"?"}auto=format&fit=max&w=${width}`:url;
+  const sizedImage=(url,width)=>url.includes("cdn.sanity.io")?`${url}${url.includes("?")?"&":"?"}fm=webp&fit=max&w=${width}`:url;
   const setImage=(element,value,width=480)=>{
     const url=imageUrl(value);
     if(!element||!url)return;
