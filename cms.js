@@ -6,24 +6,26 @@
   const imageUrl=value=>value&&typeof value==="object"?(value.asset&&value.asset.url)||value.url||"":value||"";
   const imageAlt=value=>value&&typeof value==="object"?value.alt||"":"";
   const sizedImage=(url,width)=>url.includes("cdn.sanity.io")?`${url}${url.includes("?")?"&":"?"}auto=format&fit=max&w=${width}`:url;
-  const setImage=(element,value)=>{
+  const setImage=(element,value,width=480)=>{
     const url=imageUrl(value);
     if(!element||!url)return;
-    element.style.backgroundImage=`url("${sizedImage(url,480).replace(/"/g,"%22")}")`;
+    element.style.backgroundImage=`url("${sizedImage(url,width).replace(/"/g,"%22")}")`;
     element.style.backgroundSize="cover";
     element.style.backgroundPosition="center";
     element.classList.add("has-cms-image");
   };
-  const setAdaptiveImage=(element,value,frameRatio)=>{
+  const setAdaptiveImage=(element,value,frameRatio,maxWidth=1800)=>{
     const url=imageUrl(value);
     if(!element||!url)return;
     const img=document.createElement('img');
     img.alt=imageAlt(value);
     img.decoding='async';
-    img.loading='lazy';
+    const focused=element.classList.contains('is-focus');
+    img.loading=focused||maxWidth<=480?'eager':'lazy';
+    img.fetchPriority=focused?'high':'low';
     if(url.includes('cdn.sanity.io')){
-      img.srcset=`${sizedImage(url,640)} 640w, ${sizedImage(url,1200)} 1200w, ${sizedImage(url,1800)} 1800w`;
-      img.sizes='(max-width:760px) 100vw, 50vw';
+      img.srcset=maxWidth<=480?`${sizedImage(url,240)} 240w, ${sizedImage(url,480)} 480w`:`${sizedImage(url,480)} 480w, ${sizedImage(url,800)} 800w, ${sizedImage(url,1200)} 1200w`;
+      img.sizes=maxWidth<=480?'(max-width:760px) 80px, 160px':'(max-width:760px) 320px, min(34vw, 540px)';
     }
     img.addEventListener('load',()=>{
       const ratio=img.naturalWidth/img.naturalHeight;
@@ -33,7 +35,7 @@
       element.style.setProperty('--fit-h',Math.min(1,frameRatio/ratio));
       element.classList.add('has-cms-image');
     },{once:true});
-    img.src=sizedImage(url,1200);
+    img.src=sizedImage(url,Math.min(maxWidth,800));
     element.replaceChildren(img);
   };
   const vimeoEmbed=value=>{
@@ -143,7 +145,7 @@
     const groups=settings.landingCategoryImages||{};
     document.querySelectorAll(".landing-categories a[data-category]").forEach(link=>{
       const images=groups[link.dataset.category]||[];
-      link.querySelectorAll(".category-thumbs i").forEach((frame,index)=>setAdaptiveImage(frame,images[index],1));
+      link.querySelectorAll(".category-thumbs i").forEach((frame,index)=>setAdaptiveImage(frame,images[index],1,480));
     });
   }
 
@@ -154,8 +156,25 @@
       if(!item)return;
       frame.classList.toggle("is-landscape",item.orientation==="landscape");
       frame.classList.toggle("is-portrait",item.orientation!=="landscape");
-      setAdaptiveImage(frame,item.image||item,item.orientation==="landscape"?4/3:3/4);
+      frame._cmsHoverItem=item;
+      if(frame.parentElement.matches(':hover,.is-touch-active')&&!frame._cmsImageLoaded){
+        frame._cmsImageLoaded=true;
+        setAdaptiveImage(frame,item.image||item,item.orientation==='landscape'?4/3:3/4,480);
+      }
     });
+    const field=document.querySelector('.about-hover-field');
+    if(field&&!field._cmsLazyImages){
+      const reveal=event=>{
+        const frame=event.target.closest('.about-hover-cell')?.querySelector('.about-hover-frame');
+        const item=frame?._cmsHoverItem;
+        if(!item||frame._cmsImageLoaded)return;
+        frame._cmsImageLoaded=true;
+        setAdaptiveImage(frame,item.image||item,item.orientation==='landscape'?4/3:3/4,480);
+      };
+      field.addEventListener('pointerover',reveal);
+      field.addEventListener('pointerdown',reveal);
+      field._cmsLazyImages=true;
+    }
   }
 
   function applyWorkIndex(){
@@ -216,6 +235,7 @@
     if(!projects.length)return;
     const labels={social:"creative social design",motion:"video & motion",photo:"photography"};
     const title=root.querySelector("[data-gallery-category]"),tabs=root.querySelector("[data-gallery-projects]"),copy=root.querySelector("[data-gallery-copy]"),grid=root.querySelector("[data-art-grid]"),preview=root.querySelector("[data-gallery-preview]"),mediaLayer=root.querySelector("[data-gallery-media]");
+    const thumbObserver='IntersectionObserver' in window?new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;const button=entry.target;setImage(button,button._cmsThumb,320);thumbObserver.unobserve(button)}),{rootMargin:'300px'}):null;
     title.textContent=labels[key]||key;
     const clearPreview=()=>{[...grid.children].forEach(node=>node.classList.remove("is-active"));mediaLayer.querySelector(".showcase-video")?._fitObserver?.disconnect();mediaLayer.replaceChildren();preview.classList.remove("is-showing-media")};
     const selectArtwork=(button,item)=>{
@@ -225,10 +245,10 @@
     };
     const activate=project=>{
       [...tabs.children].forEach(button=>{const active=button.dataset.slug===project.slug;button.classList.toggle("is-active",active);button.setAttribute("aria-selected",String(active))});
-      copy.textContent=project.description||"";grid.replaceChildren();
+      copy.textContent=project.description||"";thumbObserver?.disconnect();grid.replaceChildren();
       (project.galleryItems||[]).forEach(item=>{if(item.vimeoUrl&&!item._vimeoRatio)loadVimeoRatio(item.vimeoUrl).then(ratio=>{if(ratio)item._vimeoRatio=ratio})});
       const touchLayout=matchMedia("(max-width:760px), (hover:none)").matches;
-      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${item.vimeoUrl?'video':`artwork ${index+1}`}`);setImage(button,item.image||item);if(item.vimeoUrl&&!imageUrl(item.image||item))button.classList.add("is-video");if(touchLayout||item.vimeoUrl)button.addEventListener("click",()=>selectArtwork(button,item));else{button.addEventListener("pointerenter",()=>selectArtwork(button,item));button.addEventListener("pointerleave",clearPreview);button.addEventListener("focus",()=>selectArtwork(button,item));button.addEventListener("blur",clearPreview)}grid.append(button)});
+      (project.galleryItems||[]).forEach((item,index)=>{const button=document.createElement("button");button.className="art-thumb";button.type="button";button.setAttribute("aria-label",`${project.title} ${item.vimeoUrl?'video':`artwork ${index+1}`}`);button._cmsThumb=item.image||item;if(thumbObserver)thumbObserver.observe(button);else setImage(button,button._cmsThumb,320);if(item.vimeoUrl&&!imageUrl(item.image||item))button.classList.add("is-video");if(touchLayout||item.vimeoUrl)button.addEventListener("click",()=>selectArtwork(button,item));else{button.addEventListener("pointerenter",()=>selectArtwork(button,item));button.addEventListener("pointerleave",clearPreview);button.addEventListener("focus",()=>selectArtwork(button,item));button.addEventListener("blur",clearPreview)}grid.append(button)});
       if(touchLayout&&project.galleryItems?.length)selectArtwork(grid.firstElementChild,project.galleryItems[0]);else clearPreview();
       syncUrl(project,key);
     };
@@ -240,7 +260,21 @@
   function applyAll(){applyLanding();applyAbout();if(!state.usingLegacy)applyWorkIndex();renderBranding();renderGallery();document.dispatchEvent(new CustomEvent("daskool:cms-ready",{detail:state}))}
   async function load(){
     if(!config.projectId){applyAll();return state}
-    const query=`{\"settings\":*[_type==\"siteSettings\"][0]{landingMotionImages[]{alt,orientation,asset->{url}},landingCategoryImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}},aboutHoverImages[]{orientation,alt,asset->{url},image{alt,asset->{url}}},workCategoryMotionImages{branding[]{alt,asset->{url}},social[]{alt,asset->{url}},motion[]{alt,asset->{url}},photo[]{alt,asset->{url}}}},\"projects\":*[_type==\"showcaseProject\" && defined(slug.current) && defined(template)]|order(order asc){_id,title,\"slug\":slug.current,categories,template,description,brandingItems[]{label,layout,vimeoUrl,videoAspectRatio,image{alt,asset->{url}}},galleryItems[]{alt,asset->{url},caption,vimeoUrl,videoAspectRatio,image{alt,asset->{url}}}},\"legacy\":*[_type==\"project\" && status==\"published\"]|order(projectOrder asc){_id,title,\"slug\":slug.current,category,shortDescription,thumbnail{alt,asset->{url}},coverImage{alt,asset->{url}}}}`;
+    const page=document.body.classList;
+    const landing=page.contains('landing-body'),about=page.contains('about-body'),work=page.contains('work-body');
+    const branding=page.contains('branding-showcase'),gallery=page.contains('gallery-showcase');
+    const category=gallery?new URLSearchParams(location.search).get('category'):'';
+    const safeCategory=categoryKeys.includes(category)?category:'social';
+    const image='alt,asset->{url}';
+    const settingsFields=landing?`{landingMotionImages[]{${image}},landingCategoryImages{branding[]{${image}},social[]{${image}},motion[]{${image}},photo[]{${image}}}}`:about?`{aboutHoverImages[]{orientation,alt,asset->{url},image{${image}}}}`:work?`{workCategoryMotionImages{branding[]{${image}},social[]{${image}},motion[]{${image}},photo[]{${image}}}}`:'';
+    const settings=settingsFields?`*[_type=="siteSettings"][0]${settingsFields}`:'null';
+    const galleryItems=`galleryItems[]{alt,asset->{url},caption,vimeoUrl,videoAspectRatio,image{${image}}}`;
+    const brandingItems=`brandingItems[]{label,layout,vimeoUrl,videoAspectRatio,image{${image}}}`;
+    const projectFields=`{_id,title,"slug":slug.current,categories,template${branding?',description,'+brandingItems:gallery?',description,'+galleryItems:''}}`;
+    const projectFilter=branding?' && template=="branding"':gallery?` && template=="gallery" && "${safeCategory}" in categories`:'';
+    const projects=landing||about?'[]':`*[_type=="showcaseProject" && defined(slug.current) && defined(template)${projectFilter}]|order(order asc)${projectFields}`;
+    const legacy=landing||about?'[]':`*[_type=="project" && status=="published"]|order(projectOrder asc){_id,title,"slug":slug.current,category,shortDescription,thumbnail{${image}},coverImage{${image}}}`;
+    const query=`{"settings":${settings},"projects":${projects},"legacy":${legacy}}`;
     const host=config.useCdn!==false?"apicdn":"api";
     const url=`https://${config.projectId}.${host}.sanity.io/v${config.apiVersion||"2026-09-01"}/data/query/${config.dataset||"production"}?query=${encodeURIComponent(query)}`;
     try{const response=await fetch(url);if(!response.ok)throw new Error(`CMS ${response.status}`);const payload=await response.json();state.settings=payload.result&&payload.result.settings;const result=payload.result||{};const legacy=(result.legacy||[]).flatMap(project=>{const categories=(project.category||[]).filter(category=>categoryKeys.includes(category));const image=project.coverImage?.asset?.url?project.coverImage:project.thumbnail;return categories.map(category=>({title:project.title,slug:`${project.slug}-${category}`,categories:[category],template:category==='branding'?'branding':'gallery',description:project.shortDescription||'',brandingItems:image?[{image,label:project.title}]:[],galleryItems:image?[{image,caption:project.title}]:[]}))});state.usingLegacy=!result.projects?.length;state.projects=state.usingLegacy?legacy:result.projects;state.connected=true;applyAll()}catch(error){console.warn("Daskool CMS fallback active:",error);applyAll()}
